@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+{% block title %}CivicPro — Hire Skilled Workers Near You{% endblock %}
+
+{% block content %}
+
+<!-- Hero Section -->
+<section class="relative overflow-hidden min-h-screen flex items-center">
+    <!-- Animated background -->
+    <div class="absolute inset-0">
+        <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl animate-pulse-slow"></div>
+        <div class="absolute bottom-1/4 right-1/4 w-80 h-80 bg-purple-600/10 rounded-full blur-3xl animate-pulse-slow" style="animation-delay:1.5s"></div>
+        <div class="absolute top-1/2 right-1/3 w-64 h-64 bg-cyan-600/8 rounded-full blur-3xl animate-pulse-slow" style="animation-delay:3s"></div>
+
+        <!-- Grid pattern -->
+        <div class="absolute inset-0 opacity-5" style="background-image: linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px); background-size: 40px 40px;"></div>
+    </div>
+
+    <div class="relative max-w-7xl mx-auto px-6 py-24 text-center">
+        <!-- Badge -->
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-900/30 border border-blue-800/50 text-blue-400 text-sm font-medium mb-8 animate-slide-up">
+            <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+            {{ available_workers }} Workers Available Right Now
+        </div>
+
+        <h1 class="text-5xl md:text-7xl font-extrabold text-white leading-tight mb-6 animate-slide-up" style="animation-delay:0.1s">
+            Hire <span class="gradient-text">Skilled Workers</span><br>Near You — Instantly
+        </h1>
+
+        <p class="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto mb-10 leading-relaxed animate-slide-up" style="animation-delay:0.2s">
+            Connect directly with verified electricians, plumbers, carpenters, painters and more.
+            No middlemen. Fair pay. Real-time availability.
+        </p>
+
+        <!-- CTA Buttons -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-center mb-16 animate-slide-up" style="animation-delay:0.3s">
+            <a href="{% url 'search_workers' %}"
+               class="group px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-semibold rounded-2xl transition-all shadow-2xl shadow-blue-900/40 text-lg flex items-center justify-center gap-2">
+                🔍 Find Workers Near Me
+                <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+            </a>
+            <a href="{% url 'register_worker' %}"
+               class="px-8 py-4 bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-blue-500 text-white font-semibold rounded-2xl transition-all text-lg flex items-center justify-center gap-2">
+                👷 Register as Worker
+            </a>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto animate-slide-up" style="animation-delay:0.4s">
+            <div class="glass-card rounded-2xl p-4 text-center">
+                <div class="text-3xl font-bold gradient-text">{{ total_workers }}+</div>
+                <div class="text-gray-400 text-sm mt-1">Registered Workers</div>
+            </div>
+            <div class="glass-card rounded-2xl p-4 text-center">
+                <div class="text-3xl font-bold text-green-400">{{ available_workers }}</div>
+                <div class="text-gray-400 text-sm mt-1">Available Now</div>
+            </div>
+            <div class="glass-card rounded-2xl p-4 text-center">
+                <div class="text-3xl font-bold text-purple-400">{{ total_hires }}+</div>
+                <div class="text-gray-400 text-sm mt-1">Jobs Completed</div>
+            </div>
+            <div class="glass-card rounded-2xl p-4 text-center">
+                <div class="text-3xl font-bold text-yellow-400">{{ total_employers }}+</div>
+                <div class="text-gray-400 text-sm mt-1">Happy Employers</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Skill Categories Grid -->
+<section class="py-20 px-6">
+    <div class="max-w-7xl mx-auto">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Browse by Skill Category</h2>
+            <p class="text-gray-400 text-lg">Find experts in every trade and specialty</p>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            {% for value, label in skill_choices %}
+            <a href="{% url 'search_workers' %}?skill={{ value }}"
+               class="group glass-card rounded-2xl p-6 text-center hover:border-blue-500/50 hover:bg-blue-900/10 transition-all duration-300 border border-gray-700/50 worker-card">
+                <div class="text-4xl mb-3">
+                    {% if value == 'ELECTRICIAN' %}⚡
+                    {% elif value == 'PLUMBER' %}🔧
+                    {% elif value == 'DRIVER' %}🚗
+                    {% elif value == 'CARPENTER' %}🪚
+                    {% elif value == 'PAINTER' %}🖌️
+                    {% elif value == 'HELPER' %}👷
+                    {% elif value == 'MASON' %}🧱
+                    {% elif value == 'WELDER' %}🔥
+                    {% elif value == 'GARDENER' %}🌿
+                    {% elif value == 'CLEANER' %}🧹
+                    {% else %}👤{% endif %}
+                </div>
+                <div class="text-sm font-semibold text-gray-200 group-hover:text-white transition-colors">{{ label }}</div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- How It Works -->
+<section class="py-20 px-6" style="background: rgba(26,31,46,0.3);">
+    <div class="max-w-7xl mx-auto">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">How CivicPro Works</h2>
+            <p class="text-gray-400 text-lg">Simple, fast, and transparent hiring in 3 steps</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Step 1 -->
+            <div class="relative">
+                <div class="glass-card rounded-2xl p-8 border border-gray-700/50 h-full">
+                    <div class="w-14 h-14 rounded-2xl bg-blue-900/50 border border-blue-800/50 flex items-center justify-center text-2xl mb-6">🔍</div>
+                    <div class="text-blue-400 text-sm font-semibold mb-2">STEP 1</div>
+                    <h3 class="text-xl font-bold text-white mb-3">Search Nearby Workers</h3>
+                    <p class="text-gray-400 leading-relaxed">Use our Haversine-powered distance filter to find skilled workers within 2–50 km of your location. Filter by skill and see results on an interactive map.</p>
+                </div>
+                <div class="hidden md:block absolute top-1/2 -right-4 transform -translate-y-1/2 z-10">
+                    <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white">→</div>
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="relative">
+                <div class="glass-card rounded-2xl p-8 border border-gray-700/50 h-full">
+                    <div class="w-14 h-14 rounded-2xl bg-purple-900/50 border border-purple-800/50 flex items-center justify-center text-2xl mb-6">📋</div>
+                    <div class="text-purple-400 text-sm font-semibold mb-2">STEP 2</div>
+                    <h3 class="text-xl font-bold text-white mb-3">Send Direct Hire Request</h3>
+                    <p class="text-gray-400 leading-relaxed">View detailed worker profiles with ratings, experience, and daily rates. Send a direct hire request with job details — no agents, no commissions.</p>
+                </div>
+                <div class="hidden md:block absolute top-1/2 -right-4 transform -translate-y-1/2 z-10">
+                    <div class="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white">→</div>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div>
+                <div class="glass-card rounded-2xl p-8 border border-gray-700/50 h-full">
+                    <div class="w-14 h-14 rounded-2xl bg-green-900/50 border border-green-800/50 flex items-center justify-center text-2xl mb-6">⭐</div>
+                    <div class="text-green-400 text-sm font-semibold mb-2">STEP 3</div>
+                    <h3 class="text-xl font-bold text-white mb-3">Work & Get Reviewed</h3>
+                    <p class="text-gray-400 leading-relaxed">Worker accepts the request, completes the job, and both parties confirm completion. Employers leave star ratings and reviews to build worker reputation.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Worker vs Employer CTA -->
+<section class="py-20 px-6">
+    <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Worker Card -->
+        <div class="glass-card rounded-3xl p-8 border border-gray-700/50 relative overflow-hidden group hover:border-blue-500/40 transition-all duration-300">
+            <div class="absolute top-0 right-0 w-40 h-40 bg-blue-600/5 rounded-full blur-2xl group-hover:bg-blue-600/10 transition-all"></div>
+            <div class="text-5xl mb-4">👷</div>
+            <h3 class="text-2xl font-bold text-white mb-3">Are You a Skilled Worker?</h3>
+            <p class="text-gray-400 mb-6 leading-relaxed">Create your free profile, showcase your skills and experience, set your daily rate, and get hired directly by employers near you.</p>
+            <ul class="space-y-2 text-sm text-gray-400 mb-8">
+                <li class="flex items-center gap-2"><span class="text-green-400">✓</span> Free profile creation</li>
+                <li class="flex items-center gap-2"><span class="text-green-400">✓</span> Direct hiring — no agency cut</li>
+                <li class="flex items-center gap-2"><span class="text-green-400">✓</span> Toggle availability instantly</li>
+                <li class="flex items-center gap-2"><span class="text-green-400">✓</span> Build your review portfolio</li>
+            </ul>
+            <a href="{% url 'register_worker' %}" class="block text-center px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl transition-all">
+                Join as Worker →
+            </a>
+        </div>
+
+        <!-- Employer Card -->
+        <div class="glass-card rounded-3xl p-8 border border-gray-700/50 relative overflow-hidden group hover:border-green-500/40 transition-all duration-300">
+            <div class="absolute top-0 right-0 w-40 h-40 bg-green-600/5 rounded-full blur-2xl group-hover:bg-green-600/10 transition-all"></div>
+            <div class="text-5xl mb-4">🏠</div>
+            <h3 class="text-2xl font-bold text-white mb-3">Need Work Done at Home?</h3>
+            <p class="text-gray-400 mb-6 leading-relaxed">Search verified workers by distance, read reviews, compare daily rates, and send direct hire requests within minutes.</p>
+            <ul class="space-y-2 text-sm text-gray-400 mb-8">
+                <li class="flex items-center gap-2"><span class="text-green-400">✓</span> Real-time availability status</li>
+                <li class="flex items-center gap-2"><span class="text-green-400">✓</span> Distance-based sorting (Haversine)</li>
+                <li class="flex items-center gap-2"><span class="text-green-400">✓</span> Interactive map with worker pins</li>
+                <li class="flex items-center gap-2"><span class="text-green-400">✓</span> Verified worker profiles</li>
+            </ul>
+            <a href="{% url 'register_employer' %}" class="block text-center px-6 py-3 bg-green-600 hover:bg-green-500 text-white font-semibold rounded-xl transition-all">
+                Join as Employer →
+            </a>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

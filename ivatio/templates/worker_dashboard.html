@@ -1,0 +1,236 @@
+{% extends 'base.html' %}
+{% block title %}Worker Dashboard — CivicPro{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-6 py-10">
+
+    <!-- Header Row -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-white">👷 Worker Dashboard</h1>
+            <p class="text-gray-400 mt-1">Manage your profile, availability, and hire requests</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <!-- Availability Toggle -->
+            <div class="glass-card rounded-xl px-4 py-3 border border-gray-700 flex items-center gap-3">
+                <div id="availStatus">
+                    {% if profile.is_available %}
+                    <span class="badge-available px-3 py-1 rounded-full text-xs font-medium">● Available</span>
+                    {% else %}
+                    <span class="badge-busy px-3 py-1 rounded-full text-xs font-medium">● Busy</span>
+                    {% endif %}
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="availToggle" {% if profile.is_available %}checked{% endif %}>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <a href="{% url 'worker_profile_setup' %}" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-xl transition-all">✏️ Edit Profile</a>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="glass-card rounded-2xl p-5 border border-gray-700/50">
+            <div class="text-2xl mb-1">📋</div>
+            <div class="text-3xl font-bold text-yellow-400">{{ pending_count }}</div>
+            <div class="text-gray-400 text-sm">Pending Requests</div>
+        </div>
+        <div class="glass-card rounded-2xl p-5 border border-gray-700/50">
+            <div class="text-2xl mb-1">✅</div>
+            <div class="text-3xl font-bold text-green-400">{{ active_count }}</div>
+            <div class="text-gray-400 text-sm">Active Jobs</div>
+        </div>
+        <div class="glass-card rounded-2xl p-5 border border-gray-700/50">
+            <div class="text-2xl mb-1">🏆</div>
+            <div class="text-3xl font-bold text-blue-400">{{ completed_count }}</div>
+            <div class="text-gray-400 text-sm">Completed Jobs</div>
+        </div>
+        <div class="glass-card rounded-2xl p-5 border border-gray-700/50">
+            <div class="text-2xl mb-1">⭐</div>
+            <div class="text-3xl font-bold text-purple-400">
+                {% if avg_rating %}{{ avg_rating }}{% else %}—{% endif %}
+            </div>
+            <div class="text-gray-400 text-sm">Avg. Rating</div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Hire Requests -->
+        <div class="lg:col-span-2">
+            <div class="glass-card rounded-2xl border border-gray-700/50 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-700 flex items-center justify-between">
+                    <h2 class="text-lg font-semibold text-white">📩 Hire Requests</h2>
+                    <span class="text-gray-400 text-sm">{{ hire_requests.count }} total</span>
+                </div>
+
+                {% if hire_requests %}
+                <div class="divide-y divide-gray-700/50">
+                    {% for req in hire_requests %}
+                    <div class="px-6 py-5 hover:bg-gray-800/30 transition-all">
+                        <div class="flex items-start justify-between gap-4">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <div class="w-9 h-9 rounded-full bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center text-sm font-bold">
+                                        {{ req.employer.first_name|first }}{{ req.employer.last_name|first }}
+                                    </div>
+                                    <div>
+                                        <p class="text-white font-semibold text-sm">{{ req.employer.get_full_name }}</p>
+                                        <p class="text-gray-400 text-xs">Work Date: {{ req.work_date|date:"d M Y" }}</p>
+                                    </div>
+                                    <span class="badge-{{ req.status|lower }} px-2.5 py-1 rounded-full text-xs font-medium ml-auto">
+                                        {{ req.get_status_display }}
+                                    </span>
+                                </div>
+                                <p class="text-gray-300 text-sm leading-relaxed mt-2">{{ req.job_description|truncatewords:25 }}</p>
+                                {% if req.work_location %}
+                                <p class="text-gray-500 text-xs mt-1">📍 {{ req.work_location }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        {% if req.status == 'PENDING' %}
+                        <div class="flex gap-3 mt-3">
+                            <form method="post" action="{% url 'respond_hire_request' req.pk %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="accept">
+                                <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-500 text-white text-sm font-medium rounded-lg transition-all">✓ Accept</button>
+                            </form>
+                            <form method="post" action="{% url 'respond_hire_request' req.pk %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="reject">
+                                <button type="submit" class="px-4 py-2 bg-red-900/40 hover:bg-red-900/60 border border-red-800/50 text-red-400 text-sm font-medium rounded-lg transition-all">✗ Reject</button>
+                            </form>
+                        </div>
+                        {% elif req.status == 'ACCEPTED' %}
+                        <div class="mt-3">
+                            <form method="post" action="{% url 'respond_hire_request' req.pk %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="complete">
+                                <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-lg transition-all">🏁 Mark as Completed</button>
+                            </form>
+                        </div>
+                        {% elif req.status == 'COMPLETED' %}
+                        <div class="mt-2 flex items-center gap-2 text-xs text-blue-400">
+                            <span>✓ Job Completed</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="p-12 text-center">
+                    <div class="text-4xl mb-3">📭</div>
+                    <p class="text-gray-400">No hire requests yet.</p>
+                    <p class="text-gray-500 text-sm mt-1">Make sure your profile is complete and availability is ON.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Side Panel -->
+        <div class="space-y-6">
+            <!-- Profile Card -->
+            <div class="glass-card rounded-2xl p-6 border border-gray-700/50">
+                <div class="text-center">
+                    {% if profile.profile_photo %}
+                    <img src="{{ profile.profile_photo.url }}" alt="Profile" class="w-20 h-20 rounded-full mx-auto mb-3 object-cover border-2 border-blue-500">
+                    {% else %}
+                    <div class="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-3xl mx-auto mb-3">
+                        {{ profile.get_skill_display_icon }}
+                    </div>
+                    {% endif %}
+                    <h3 class="font-bold text-white">{{ request.user.get_full_name }}</h3>
+                    <p class="text-gray-400 text-sm">{{ profile.get_skill_category_display }}</p>
+                    {% if profile.is_verified %}
+                    <span class="inline-block mt-2 px-2.5 py-0.5 bg-blue-900/30 border border-blue-800/50 text-blue-400 text-xs rounded-full">✓ Verified</span>
+                    {% endif %}
+                </div>
+
+                <div class="mt-4 space-y-3">
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-gray-400">Daily Rate</span>
+                        <span class="text-green-400 font-semibold">₹{{ profile.daily_rate|default:"Not set" }}</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-gray-400">Experience</span>
+                        <span class="text-white">{{ profile.experience_years }} years</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-gray-400">Location</span>
+                        <span class="text-white text-right text-xs">{{ profile.location_name|default:"Not set" }}</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-gray-400">Phone</span>
+                        <span class="text-white">{{ profile.phone|default:"Not set" }}</span>
+                    </div>
+                </div>
+
+                {% if not profile.latitude or not profile.longitude %}
+                <div class="mt-4 p-3 bg-yellow-900/20 border border-yellow-800/40 rounded-xl">
+                    <p class="text-yellow-400 text-xs">⚠️ Set your location on the map so employers can find you by distance.</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Reviews Section -->
+            <div class="glass-card rounded-2xl border border-gray-700/50 overflow-hidden">
+                <div class="px-5 py-4 border-b border-gray-700">
+                    <h3 class="font-semibold text-white">⭐ Recent Reviews</h3>
+                </div>
+                {% if reviews %}
+                <div class="p-4 space-y-4">
+                    {% for review in reviews|slice:":3" %}
+                    <div class="bg-gray-800/50 rounded-xl p-3">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-medium text-white">{{ review.employer.get_full_name }}</span>
+                            <span class="text-yellow-400 text-sm">{% for i in "12345" %}{% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}{% endfor %}</span>
+                        </div>
+                        <p class="text-gray-400 text-xs leading-relaxed">{{ review.comment|truncatewords:20 }}</p>
+                        <p class="text-gray-600 text-xs mt-1">{{ review.created_at|date:"d M Y" }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="p-6 text-center">
+                    <p class="text-gray-500 text-sm">No reviews yet — complete jobs to get rated!</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const toggleEl = document.getElementById('availToggle');
+    const statusEl = document.getElementById('availStatus');
+
+    toggleEl.addEventListener('change', async function() {
+        const res = await fetch('{% url "toggle_availability" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json',
+            }
+        });
+        const data = await res.json();
+        if (data.status === 'ok') {
+            if (data.is_available) {
+                statusEl.innerHTML = '<span class="badge-available px-3 py-1 rounded-full text-xs font-medium">● Available</span>';
+            } else {
+                statusEl.innerHTML = '<span class="badge-busy px-3 py-1 rounded-full text-xs font-medium">● Busy</span>';
+            }
+            // Show a quick notification
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-20 right-4 z-50 glass-card rounded-xl px-4 py-3 border border-green-500/30 bg-green-900/20 text-sm text-gray-200 toast';
+            toast.textContent = data.message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3500);
+        }
+    });
+</script>
+{% endblock %}

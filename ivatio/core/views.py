@@ -1,0 +1,554 @@
+"""
+CivicPro Views
+Complete view logic including Haversine distance calculations,
+authentication, worker/employer dashboards, and hiring workflow.
+"""
+
+import math
+import json
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.contrib import messages
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.db.models import Avg, Count
+from django.utils import timezone
+
+from .models import UserProfile, HireRequest, Review, WorkerAvailabilityLog
+from .forms import (
+    WorkerRegistrationForm, EmployerRegistrationForm,
+    WorkerProfileForm, HireRequestForm, ReviewForm, WorkerSearchForm
+)
+
+
+# ─────────────────────────────────────────────
+#  HAVERSINE DISTANCE CALCULATION
+# ─────────────────────────────────────────────
+
+def haversine_distance(lat1, lon1, lat2, lon2):
+    """
+    Calculate the great-circle distance between two points on Earth
+    using the Haversine Formula. Returns distance in kilometers.
+    """
+    R = 6371  # Earth's radius in kilometers
+    lat1, lon1, lat2, lon2 = map(math.radians, [lat1, lon1, lat2, lon2])
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
+    a = math.sin(dlat / 2) ** 2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2) ** 2
+    c = 2 * math.asin(math.sqrt(a))
+    return R * c
+
+
+def get_workers_with_distance(user_lat, user_lng, skill=None, radius=50):
+    """
+    Fetch available workers with distance from user's location.
+    Returns sorted list (closest first) within the given radius.
+    """
+    queryset = UserProfile.objects.filter(
+        role='WORKER',
+        is_available=True,
+        latitude__isnull=False,
+        longitude__isnull=False,
+    ).select_related('user')
+
+    if skill:
+        queryset = queryset.filter(skill_category=skill)
+
+    workers_with_distance = []
+    for worker in queryset:
+        dist = haversine_distance(user_lat, user_lng, worker.latitude, worker.longitude)
+        if dist <= radius:
+            workers_with_distance.append({
+                'worker': worker,
+                'distance': round(dist, 1),
+            })
+
+    workers_with_distance.sort(key=lambda x: x['distance'])
+    return workers_with_distance
+
+
+# ─────────────────────────────────────────────
+#  HOME / LANDING PAGE
+# ─────────────────────────────────────────────
+
+def home(request):
+    """Landing page with platform stats"""
+    if request.user.is_authenticated:
+        try:
+            profile = request.user.profile
+            if profile.role == 'WORKER':
+                return redirect('worker_dashboard')
+            elif profile.role == 'EMPLOYER':
+                return redirect('employer_dashboard')
+        except UserProfile.DoesNotExist:
+            pass
+
+    # Stats for landing page
+    total_workers = UserProfile.objects.filter(role='WORKER').count()
+    available_workers = UserProfile.objects.filter(role='WORKER', is_available=True).count()
+    total_hires = HireRequest.objects.filter(status='COMPLETED').count()
+    total_employers = UserProfile.objects.filter(role='EMPLOYER').count()
+
+    context = {
+        'total_workers': total_workers,
+        'available_workers': available_workers,
+        'total_hires': total_hires,
+        'total_employers': total_employers,
+        'skill_choices': UserProfile.SKILL_CHOICES,
+    }
+    return render(request, 'home.html', context)
+
+
+# ─────────────────────────────────────────────
+#  AUTHENTICATION VIEWS
+# ─────────────────────────────────────────────
+
+def register_worker(request):
+    """Worker registration with profile setup"""
+    if request.user.is_authenticated:
+        return redirect('home')
+
+    if request.method == 'POST':
+        form = WorkerRegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.first_name = form.cleaned_data['first_name']
+            user.last_name = form.cleaned_data['last_name']
+            user.email = form.cleaned_data['email']
+            user.save()
+
+            # Create UserProfile for worker
+            UserProfile.objects.create(
+                user=user,
+                role='WORKER',
+                phone=form.cleaned_data['phone'],
+                skill_category=form.cleaned_data['skill_category'],
+                daily_rate=form.cleaned_data['daily_rate'],
+                experience_years=form.cleaned_data['experience_years'],
+                location_name=form.cleaned_data['location_name'],
+            )
+
+            login(request, user)
+            messages.success(request, f"Welcome to CivicPro, {user.first_name}! Complete your profile to start getting hired.")
+            return redirect('worker_profile_setup')
+    else:
+        form = WorkerRegistrationForm()
+
+    return render(request, 'register_worker.html', {'form': form})
+
+
+def register_employer(request):
+    """Employer registration"""
+    if request.user.is_authenticated:
+        return redirect('home')
+
+    if request.method == 'POST':
+        form = EmployerRegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.first_name = form.cleaned_data['first_name']
+            user.last_name = form.cleaned_data['last_name']
+            user.email = form.cleaned_data['email']
+            user.save()
+
+            UserProfile.objects.create(
+                user=user,
+                role='EMPLOYER',
+                phone=form.cleaned_data.get('phone', ''),
+            )
+
+            login(request, user)
+            messages.success(request, f"Welcome, {user.first_name}! You can now search and hire skilled workers.")
+            return redirect('employer_dashboard')
+    else:
+        form = EmployerRegistrationForm()
+
+    return render(request, 'register_employer.html', {'form': form})
+
+
+def login_view(request):
+    """Custom login view"""
+    if request.user.is_authenticated:
+        return redirect('home')
+
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+            messages.success(request, f"Welcome back, {user.first_name or user.username}!")
+            next_url = request.GET.get('next', 'home')
+            return redirect(next_url)
+        else:
+            messages.error(request, "Invalid username or password. Please try again.")
+
+    return render(request, 'login.html')
+
+
+def logout_view(request):
+    """Logout"""
+    logout(request)
+    messages.info(request, "You have been logged out. See you soon!")
+    return redirect('login')
+
+
+# ─────────────────────────────────────────────
+#  WORKER VIEWS
+# ─────────────────────────────────────────────
+
+@login_required
+def worker_profile_setup(request):
+    """Worker profile creation / editing"""
+    try:
+        profile = request.user.profile
+        if profile.role != 'WORKER':
+            messages.error(request, "This page is for workers only.")
+            return redirect('home')
+    except UserProfile.DoesNotExist:
+        profile = UserProfile.objects.create(user=request.user, role='WORKER')
+
+    if request.method == 'POST':
+        form = WorkerProfileForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "✅ Profile updated successfully!")
+            return redirect('worker_dashboard')
+    else:
+        form = WorkerProfileForm(instance=profile)
+
+    return render(request, 'worker_profile_setup.html', {'form': form, 'profile': profile})
+
+
+@login_required
+def worker_dashboard(request):
+    """Worker dashboard — stats, hire requests, and availability toggle"""
+    try:
+        profile = request.user.profile
+        if profile.role != 'WORKER':
+            return redirect('employer_dashboard')
+    except UserProfile.DoesNotExist:
+        return redirect('worker_profile_setup')
+
+    hire_requests = HireRequest.objects.filter(
+        worker=profile
+    ).select_related('employer').order_by('-created_at')
+
+    # Stats
+    pending_count = hire_requests.filter(status='PENDING').count()
+    active_count = hire_requests.filter(status='ACCEPTED').count()
+    completed_count = hire_requests.filter(status='COMPLETED').count()
+    reviews = profile.reviews_received.all().order_by('-created_at')
+
+    context = {
+        'profile': profile,
+        'hire_requests': hire_requests,
+        'pending_count': pending_count,
+        'active_count': active_count,
+        'completed_count': completed_count,
+        'reviews': reviews,
+        'avg_rating': profile.avg_rating(),
+    }
+    return render(request, 'worker_dashboard.html', context)
+
+
+@login_required
+@require_POST
+def toggle_availability(request):
+    """AJAX endpoint to toggle worker availability"""
+    try:
+        profile = request.user.profile
+        if profile.role != 'WORKER':
+            return JsonResponse({'error': 'Not a worker'}, status=403)
+
+        profile.is_available = not profile.is_available
+        profile.save()
+
+        # Log the change
+        WorkerAvailabilityLog.objects.create(
+            worker=profile,
+            became_available=profile.is_available
+        )
+
+        return JsonResponse({
+            'status': 'ok',
+            'is_available': profile.is_available,
+            'message': '✅ You are now Available for Work!' if profile.is_available else '🔴 Status set to Busy'
+        })
+    except UserProfile.DoesNotExist:
+        return JsonResponse({'error': 'Profile not found'}, status=404)
+
+
+@login_required
+@require_POST
+def respond_hire_request(request, pk):
+    """Worker accepts or rejects a hire request"""
+    hire_req = get_object_or_404(HireRequest, pk=pk, worker=request.user.profile)
+    action = request.POST.get('action')
+
+    if action == 'accept' and hire_req.status == 'PENDING':
+        hire_req.status = 'ACCEPTED'
+        hire_req.save()
+        messages.success(request, f"✅ You accepted the job request from {hire_req.employer.get_full_name() or hire_req.employer.username}!")
+    elif action == 'reject' and hire_req.status == 'PENDING':
+        hire_req.status = 'REJECTED'
+        hire_req.save()
+        messages.info(request, "Request rejected.")
+    elif action == 'complete' and hire_req.status == 'ACCEPTED':
+        hire_req.status = 'COMPLETED'
+        hire_req.save()
+        messages.success(request, "🎉 Job marked as Completed! The employer can now leave a review.")
+
+    return redirect('worker_dashboard')
+
+
+# ─────────────────────────────────────────────
+#  EMPLOYER VIEWS
+# ─────────────────────────────────────────────
+
+@login_required
+def employer_dashboard(request):
+    """Employer dashboard — sent requests, stats"""
+    try:
+        profile = request.user.profile
+        if profile.role != 'EMPLOYER':
+            return redirect('worker_dashboard')
+    except UserProfile.DoesNotExist:
+        profile = None
+
+    hire_requests = HireRequest.objects.filter(
+        employer=request.user
+    ).select_related('worker', 'worker__user').order_by('-created_at')
+
+    pending = hire_requests.filter(status='PENDING').count()
+    active = hire_requests.filter(status='ACCEPTED').count()
+    completed = hire_requests.filter(status='COMPLETED').count()
+
+    # Requests eligible for review
+    completable = hire_requests.filter(status='COMPLETED')
+    reviewable_ids = []
+    for h in completable:
+        if h.can_review():
+            reviewable_ids.append(h.id)
+
+    context = {
+        'profile': profile,
+        'hire_requests': hire_requests,
+        'pending': pending,
+        'active': active,
+        'completed': completed,
+        'reviewable_ids': reviewable_ids,
+        'review_form': ReviewForm(),
+    }
+    return render(request, 'employer_dashboard.html', context)
+
+
+@login_required
+def search_workers(request):
+    """
+    Main worker search page with Haversine-based proximity sorting.
+    Displays interactive Leaflet.js map with worker pins.
+    """
+    try:
+        profile = request.user.profile
+    except UserProfile.DoesNotExist:
+        profile = None
+
+    form = WorkerSearchForm(request.GET)
+
+    # Default: Bangalore city center
+    user_lat = float(request.GET.get('lat', 12.9716))
+    user_lng = float(request.GET.get('lng', 77.5946))
+    radius = int(request.GET.get('radius', 10))
+    skill = request.GET.get('skill', '')
+
+    workers_data = get_workers_with_distance(user_lat, user_lng, skill or None, radius)
+
+    # Prepare JSON data for Leaflet map
+    map_workers = []
+    for item in workers_data:
+        w = item['worker']
+        map_workers.append({
+            'id': w.id,
+            'name': w.user.get_full_name() or w.user.username,
+            'skill': w.get_skill_category_display(),
+            'skill_icon': w.get_skill_display_icon(),
+            'rate': float(w.daily_rate) if w.daily_rate else 0,
+            'experience': w.experience_years,
+            'location': w.location_name,
+            'distance': item['distance'],
+            'rating': w.avg_rating(),
+            'lat': w.latitude,
+            'lng': w.longitude,
+            'is_verified': w.is_verified,
+            'url': f"/worker/{w.id}/",
+        })
+
+    context = {
+        'form': form,
+        'workers_data': workers_data,
+        'map_workers_json': json.dumps(map_workers),
+        'user_lat': user_lat,
+        'user_lng': user_lng,
+        'radius': radius,
+        'skill': skill,
+        'skill_choices': UserProfile.SKILL_CHOICES,
+        'radius_options': [2, 5, 10, 25, 50, 100],
+        'total_found': len(workers_data),
+    }
+    return render(request, 'employer_search_directory.html', context)
+
+
+@login_required
+def worker_detail(request, pk):
+    """Full worker profile detail page"""
+    worker = get_object_or_404(UserProfile, pk=pk, role='WORKER')
+    reviews = worker.reviews_received.select_related('employer').order_by('-created_at')
+    hire_form = HireRequestForm()
+
+    # Calculate distance if employer has set location
+    distance = None
+    user_lat = request.GET.get('lat')
+    user_lng = request.GET.get('lng')
+    if user_lat and user_lng and worker.latitude and worker.longitude:
+        try:
+            distance = round(haversine_distance(
+                float(user_lat), float(user_lng),
+                worker.latitude, worker.longitude
+            ), 1)
+        except (ValueError, TypeError):
+            pass
+
+    # Check if current employer already has a pending/active request
+    existing_request = None
+    if request.user.is_authenticated:
+        existing_request = HireRequest.objects.filter(
+            employer=request.user,
+            worker=worker,
+            status__in=['PENDING', 'ACCEPTED']
+        ).first()
+
+    context = {
+        'worker': worker,
+        'reviews': reviews,
+        'hire_form': hire_form,
+        'distance': distance,
+        'existing_request': existing_request,
+        'avg_rating': worker.avg_rating(),
+        'total_jobs': worker.total_jobs(),
+        'star_range': range(1, 6),
+    }
+    return render(request, 'worker_detail.html', context)
+
+
+@login_required
+@require_POST
+def send_hire_request(request, worker_pk):
+    """Send a direct hire request to a worker"""
+    worker = get_object_or_404(UserProfile, pk=worker_pk, role='WORKER')
+
+    try:
+        profile = request.user.profile
+        if profile.role != 'EMPLOYER':
+            messages.error(request, "Only employers can send hire requests.")
+            return redirect('worker_detail', pk=worker_pk)
+    except UserProfile.DoesNotExist:
+        messages.error(request, "Please complete your profile first.")
+        return redirect('worker_detail', pk=worker_pk)
+
+    # Prevent duplicate active requests
+    if HireRequest.objects.filter(
+        employer=request.user, worker=worker, status__in=['PENDING', 'ACCEPTED']
+    ).exists():
+        messages.warning(request, "You already have an active request with this worker.")
+        return redirect('worker_detail', pk=worker_pk)
+
+    form = HireRequestForm(request.POST)
+    if form.is_valid():
+        hire_req = form.save(commit=False)
+        hire_req.employer = request.user
+        hire_req.worker = worker
+        hire_req.save()
+        messages.success(request, f"🎯 Hire request sent to {worker.user.get_full_name() or worker.user.username}! They will review and respond shortly.")
+    else:
+        messages.error(request, "Please fill in all required fields.")
+
+    return redirect('worker_detail', pk=worker_pk)
+
+
+@login_required
+@require_POST
+def submit_review(request, hire_request_pk):
+    """Submit a review after job completion"""
+    hire_req = get_object_or_404(HireRequest, pk=hire_request_pk, employer=request.user, status='COMPLETED')
+
+    if not hire_req.can_review():
+        messages.warning(request, "Review already submitted for this job.")
+        return redirect('employer_dashboard')
+
+    form = ReviewForm(request.POST)
+    if form.is_valid():
+        review = form.save(commit=False)
+        review.worker = hire_req.worker
+        review.employer = request.user
+        review.hire_request = hire_req
+        review.save()
+        messages.success(request, "⭐ Thank you! Your review has been submitted.")
+    else:
+        messages.error(request, "Invalid review data. Please try again.")
+
+    return redirect('employer_dashboard')
+
+
+@login_required
+def mark_hire_completed(request, pk):
+    """Employer marks a hire request as completed"""
+    hire_req = get_object_or_404(HireRequest, pk=pk, employer=request.user, status='ACCEPTED')
+    hire_req.status = 'COMPLETED'
+    hire_req.save()
+    messages.success(request, "✅ Job marked as Completed! You can now leave a review.")
+    return redirect('employer_dashboard')
+
+
+# ─────────────────────────────────────────────
+#  API ENDPOINTS (for AJAX)
+# ─────────────────────────────────────────────
+
+def api_workers_nearby(request):
+    """
+    JSON API: Returns nearby workers for Leaflet map.
+    Query params: lat, lng, radius, skill
+    """
+    try:
+        lat = float(request.GET.get('lat', 12.9716))
+        lng = float(request.GET.get('lng', 77.5946))
+        radius = float(request.GET.get('radius', 10))
+        skill = request.GET.get('skill', '')
+    except (ValueError, TypeError):
+        return JsonResponse({'error': 'Invalid parameters'}, status=400)
+
+    workers_data = get_workers_with_distance(lat, lng, skill or None, radius)
+
+    result = []
+    for item in workers_data:
+        w = item['worker']
+        result.append({
+            'id': w.id,
+            'name': w.user.get_full_name() or w.user.username,
+            'skill': w.get_skill_category_display(),
+            'skill_icon': w.get_skill_display_icon(),
+            'rate': float(w.daily_rate) if w.daily_rate else 0,
+            'experience': w.experience_years,
+            'location': w.location_name,
+            'distance': item['distance'],
+            'rating': w.avg_rating(),
+            'lat': w.latitude,
+            'lng': w.longitude,
+            'is_verified': w.is_verified,
+            'url': f"/worker/{w.id}/",
+        })
+
+    return JsonResponse({'workers': result, 'count': len(result)})
