@@ -4,120 +4,122 @@
 {% block content %}
 <div class="min-h-screen flex items-center justify-center px-4 py-16">
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute top-1/4 left-1/6 w-72 h-72 bg-blue-600/8 rounded-full blur-3xl"></div>
-        <div class="absolute bottom-1/4 right-1/6 w-64 h-64 bg-cyan-600/8 rounded-full blur-3xl"></div>
+        <div class="absolute top-1/4 left-1/6 w-96 h-96 bg-blue-200/40 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-1/4 right-1/6 w-80 h-80 bg-indigo-200/30 rounded-full blur-3xl"></div>
     </div>
 
     <div class="relative w-full max-w-2xl">
         <!-- Header -->
         <div class="text-center mb-8">
             <div class="text-5xl mb-4">👷</div>
-            <h1 class="text-3xl font-bold text-white">Join as a Worker</h1>
-            <p class="text-gray-400 mt-2">Create your professional profile and start getting hired</p>
+            <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Join as a Worker</h1>
+            <p class="text-slate-600 mt-2 text-sm font-medium">Create your professional profile and start getting hired</p>
         </div>
 
-        <div class="glass-card rounded-3xl p-8 border border-gray-700/50">
+        <div class="glass-card rounded-3xl p-8 border border-white/95 shadow-xl bg-white/85">
             <form method="post" class="space-y-5">
                 {% csrf_token %}
 
                 <!-- Name Row -->
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-2">First Name *</label>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">First Name *</label>
                         {{ form.first_name }}
                         {% if form.first_name.errors %}
-                            <p class="text-red-400 text-xs mt-1">{{ form.first_name.errors.0 }}</p>
+                            <p class="text-red-500 text-xs mt-1">{{ form.first_name.errors.0 }}</p>
                         {% endif %}
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-2">Last Name *</label>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Last Name *</label>
                         {{ form.last_name }}
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-2">Username *</label>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Username *</label>
                     {{ form.username }}
                     {% if form.username.errors %}
-                        <p class="text-red-400 text-xs mt-1">{{ form.username.errors.0 }}</p>
+                        <p class="text-red-500 text-xs mt-1">{{ form.username.errors.0 }}</p>
                     {% endif %}
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-2">Email Address *</label>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Email Address *</label>
                     {{ form.email }}
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-2">Phone Number *</label>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Phone Number *</label>
                     {{ form.phone }}
                 </div>
 
                 <!-- Skill & Rate Row -->
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-2">Skill Category *</label>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Skill Category *</label>
                         {{ form.skill_category }}
                         {% if form.skill_category.errors %}
-                            <p class="text-red-400 text-xs mt-1">{{ form.skill_category.errors.0 }}</p>
+                            <p class="text-red-500 text-xs mt-1">{{ form.skill_category.errors.0 }}</p>
                         {% endif %}
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-2">Daily Rate (₹) *</label>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Daily Rate (₹) *</label>
                         {{ form.daily_rate }}
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-2">Years of Experience *</label>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Years of Experience *</label>
                     {{ form.experience_years }}
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-2">Your Location *</label>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Your Location *</label>
                     {{ form.location_name }}
-                    <p class="text-gray-500 text-xs mt-1">e.g. "Koramangala, Bangalore" — you can add exact coordinates later</p>
+                    <p class="text-slate-500 text-xs mt-1 font-medium">e.g. "Koramangala, Bangalore" — you can add exact coordinates later</p>
                 </div>
 
                 <!-- Password Row -->
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-2">Password *</label>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Password *</label>
                         {{ form.password1 }}
                         {% if form.password1.errors %}
-                            <p class="text-red-400 text-xs mt-1">{{ form.password1.errors.0 }}</p>
+                            <p class="text-red-500 text-xs mt-1">{{ form.password1.errors.0 }}</p>
                         {% endif %}
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-2">Confirm Password *</label>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Confirm Password *</label>
                         {{ form.password2 }}
                         {% if form.password2.errors %}
-                            <p class="text-red-400 text-xs mt-1">{{ form.password2.errors.0 }}</p>
+                            <p class="text-red-500 text-xs mt-1">{{ form.password2.errors.0 }}</p>
                         {% endif %}
                     </div>
                 </div>
 
                 <!-- Non-field errors -->
                 {% if form.non_field_errors %}
-                <div class="p-3 bg-red-900/20 border border-red-800/50 rounded-xl">
+                <div class="p-3 bg-red-50 border border-red-200 rounded-xl">
                     {% for error in form.non_field_errors %}
-                        <p class="text-red-400 text-sm">{{ error }}</p>
+                        <p class="text-red-600 text-sm font-medium">{{ error }}</p>
                     {% endfor %}
                 </div>
                 {% endif %}
 
                 <button type="submit"
-                        class="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-semibold rounded-xl transition-all shadow-lg shadow-blue-900/30 text-base">
+                        class="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl transition-all shadow-md shadow-blue-500/20 text-base">
                     🚀 Create Worker Profile
                 </button>
             </form>
 
-            <p class="mt-6 text-center text-gray-400 text-sm">
-                Already have an account? <a href="{% url 'login' %}" class="text-blue-400 hover:text-blue-300 font-medium">Sign in</a>
-            </p>
-            <p class="mt-2 text-center text-gray-400 text-sm">
-                Looking to hire workers? <a href="{% url 'register_employer' %}" class="text-green-400 hover:text-green-300 font-medium">Employer registration</a>
-            </p>
+            <div class="mt-6 pt-4 border-t border-slate-100 text-center space-y-2">
+                <p class="text-slate-600 text-sm font-medium">
+                    Already have an account? <a href="{% url 'login' %}" class="text-blue-600 hover:text-blue-700 font-bold">Sign in</a>
+                </p>
+                <p class="text-slate-600 text-sm font-medium">
+                    Looking to hire workers? <a href="{% url 'register_employer' %}" class="text-emerald-600 hover:text-emerald-700 font-bold">Employer registration</a>
+                </p>
+            </div>
         </div>
     </div>
 </div>

@@ -1,60 +1,85 @@
 {% extends 'base.html' %}
 {% block title %}Setup Profile — CivicPro{% endblock %}
 
+{% block extra_head %}
+<style>
+    #locationMap {
+        height: 320px;
+        min-height: 280px;
+        width: 100%;
+        position: relative;
+        z-index: 1;
+    }
+    .leaflet-container { background: #e8f2fc !important; }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="max-w-3xl mx-auto px-6 py-12">
+<div class="max-w-4xl mx-auto px-4 sm:px-6 py-10">
     <!-- Header -->
     <div class="mb-8">
-        <h1 class="text-3xl font-bold text-white">
-            {% if profile.location_name %}✏️ Edit Your Profile{% else %}🛠️ Setup Your Profile{% endif %}
+        <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">
+            {% if profile.location_name %}✏️ Edit Your Worker Profile{% else %}🛠️ Setup Your Worker Profile{% endif %}
         </h1>
-        <p class="text-gray-400 mt-2">Keep your profile updated to get more hire requests</p>
+        <p class="text-slate-600 mt-1 font-medium text-sm">Keep your profile and service location updated to get hired quickly</p>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Profile Preview -->
-        <div class="glass-card rounded-2xl p-6 border border-gray-700/50 h-fit">
+        <!-- Profile Preview Card -->
+        <div class="glass-card rounded-2xl p-6 border border-white/95 shadow-sm bg-white/85 h-fit">
             <div class="text-center">
-                <div class="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-3xl font-bold mx-auto mb-3">
+                {% if profile.profile_photo %}
+                <img src="{{ profile.profile_photo.url }}" alt="{{ request.user.get_full_name }}"
+                     class="w-20 h-20 rounded-2xl mx-auto mb-3 object-cover border-2 border-blue-500/30 shadow-sm">
+                {% else %}
+                <div class="w-20 h-20 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-3xl font-bold mx-auto mb-3 shadow-md shadow-blue-500/20">
                     {{ profile.get_skill_display_icon }}
                 </div>
-                <h3 class="font-semibold text-white">{{ request.user.get_full_name }}</h3>
-                <p class="text-gray-400 text-sm">@{{ request.user.username }}</p>
+                {% endif %}
 
-                <div class="mt-4 space-y-2">
+                <h3 class="font-bold text-slate-900">{{ request.user.get_full_name|default:request.user.username }}</h3>
+                <p class="text-slate-500 text-xs font-medium">@{{ request.user.username }}</p>
+
+                <div class="mt-4">
                     {% if profile.is_available %}
-                    <span class="badge-available px-3 py-1 rounded-full text-xs font-medium">✓ Available for Work</span>
+                    <span class="badge-available px-3 py-1 rounded-full text-xs font-semibold">✓ Available for Work</span>
                     {% else %}
-                    <span class="badge-busy px-3 py-1 rounded-full text-xs font-medium">⏸ Currently Busy</span>
+                    <span class="badge-busy px-3 py-1 rounded-full text-xs font-semibold">⏸ Currently Busy</span>
                     {% endif %}
                 </div>
 
                 {% if profile.avg_rating %}
                 <div class="mt-3 flex items-center justify-center gap-1">
-                    <span class="text-yellow-400 text-sm">★</span>
-                    <span class="text-white text-sm font-semibold">{{ profile.avg_rating }}</span>
-                    <span class="text-gray-400 text-xs">({{ profile.reviews_received.count }} reviews)</span>
+                    <span class="text-amber-500 text-sm font-bold">★</span>
+                    <span class="text-slate-800 text-sm font-bold">{{ profile.avg_rating }}</span>
+                    <span class="text-slate-500 text-xs font-medium">({{ profile.reviews_received.count }} reviews)</span>
                 </div>
                 {% endif %}
 
-                <div class="mt-4 p-3 bg-gray-800/60 rounded-xl text-left space-y-2">
-                    <div class="flex justify-between text-xs">
-                        <span class="text-gray-400">Jobs Done</span>
-                        <span class="text-white font-medium">{{ profile.total_jobs }}</span>
+                <div class="mt-5 p-3.5 bg-blue-50/50 border border-blue-100 rounded-xl text-left space-y-2">
+                    <div class="flex justify-between text-xs font-medium">
+                        <span class="text-slate-500">Skill</span>
+                        <span class="text-blue-700 font-bold">{{ profile.get_skill_category_display|default:"Not selected" }}</span>
                     </div>
-                    <div class="flex justify-between text-xs">
-                        <span class="text-gray-400">Daily Rate</span>
-                        <span class="text-green-400 font-medium">₹{{ profile.daily_rate|default:"Not set" }}</span>
+                    <div class="flex justify-between text-xs font-medium">
+                        <span class="text-slate-500">Daily Rate</span>
+                        <span class="text-emerald-600 font-bold">₹{{ profile.daily_rate|default:"Not set" }}</span>
                     </div>
-                    <div class="flex justify-between text-xs">
-                        <span class="text-gray-400">Experience</span>
-                        <span class="text-white font-medium">{{ profile.experience_years }} yrs</span>
+                    <div class="flex justify-between text-xs font-medium">
+                        <span class="text-slate-500">Experience</span>
+                        <span class="text-slate-800 font-bold">{{ profile.experience_years }} yrs</span>
+                    </div>
+                    <div class="flex justify-between text-xs font-medium">
+                        <span class="text-slate-500">Location</span>
+                        <span class="text-slate-800 font-bold truncate max-w-[120px]">{{ profile.location_name|default:"Not set" }}</span>
                     </div>
                 </div>
             </div>
 
-            <div class="mt-4">
-                <a href="{% url 'worker_dashboard' %}" class="block text-center py-2 px-4 bg-gray-700 hover:bg-gray-600 text-gray-300 text-sm rounded-xl transition-all">← Back to Dashboard</a>
+            <div class="mt-5">
+                <a href="{% url 'worker_dashboard' %}" class="block text-center py-2.5 px-4 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 font-semibold text-xs rounded-xl transition-all">
+                    ← Back to Dashboard
+                </a>
             </div>
         </div>
 
@@ -62,64 +87,95 @@
         <div class="lg:col-span-2">
             <form method="post" enctype="multipart/form-data" class="space-y-5">
                 {% csrf_token %}
-                <div class="glass-card rounded-2xl p-6 border border-gray-700/50">
-                    <h3 class="text-lg font-semibold text-white mb-4">📞 Contact Information</h3>
+
+                <!-- Contact -->
+                <div class="glass-card rounded-2xl p-6 border border-white/95 shadow-sm bg-white/85">
+                    <h3 class="text-base font-bold text-slate-800 mb-4">📞 Contact Information</h3>
                     <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-2">Phone Number</label>
+                        <label class="block text-xs font-bold text-slate-600 mb-2">Phone Number</label>
                         {{ form.phone }}
                     </div>
                 </div>
 
-                <div class="glass-card rounded-2xl p-6 border border-gray-700/50">
-                    <h3 class="text-lg font-semibold text-white mb-4">🛠️ Skills & Rates</h3>
+                <!-- Skills & Rates -->
+                <div class="glass-card rounded-2xl p-6 border border-white/95 shadow-sm bg-white/85">
+                    <h3 class="text-base font-bold text-slate-800 mb-4">🛠️ Skills & Rates</h3>
                     <div class="space-y-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-2">Skill Category</label>
+                            <label class="block text-xs font-bold text-slate-600 mb-2">Skill Category</label>
                             {{ form.skill_category }}
                         </div>
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-300 mb-2">Daily Rate (₹)</label>
+                                <label class="block text-xs font-bold text-slate-600 mb-2">Daily Rate (₹)</label>
                                 {{ form.daily_rate }}
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-300 mb-2">Experience (Years)</label>
+                                <label class="block text-xs font-bold text-slate-600 mb-2">Experience (Years)</label>
                                 {{ form.experience_years }}
                             </div>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-2">Bio / About Me</label>
+                            <label class="block text-xs font-bold text-slate-600 mb-2">Bio / About Me</label>
                             {{ form.bio }}
                         </div>
                     </div>
                 </div>
 
-                <div class="glass-card rounded-2xl p-6 border border-gray-700/50">
-                    <h3 class="text-lg font-semibold text-white mb-4">📍 Location</h3>
+                <!-- Location & Interactive Map Picker -->
+                <div class="glass-card rounded-2xl p-6 border border-white/95 shadow-sm bg-white/85">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-base font-bold text-slate-800">📍 Service Location</h3>
+                        <button type="button" id="detectLocationBtn"
+                                class="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5">
+                            📡 Detect My Location
+                        </button>
+                    </div>
+
                     <div class="space-y-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-2">Location Name</label>
+                            <label class="block text-xs font-bold text-slate-600 mb-2">City / Area Name</label>
                             {{ form.location_name }}
                         </div>
+
                         <!-- Map Picker -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-2">Pin Your Location on Map</label>
-                            <p class="text-gray-500 text-xs mb-3">Click on the map to set your precise location for distance-based search</p>
-                            <div id="locationMap" class="w-full h-64 rounded-xl overflow-hidden border border-gray-600"></div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1">Pin Your Exact Location on Map</label>
+                            <p class="text-slate-500 text-xs mb-3 font-medium">Click on the map or drag the pin to set your exact location. Employers will find you based on proximity.</p>
+
+                            <div id="locationMap" style="height: 320px; min-height: 280px; width: 100%; position: relative;" class="rounded-xl overflow-hidden border border-slate-200 shadow-inner"></div>
+
                             {{ form.latitude }}
                             {{ form.longitude }}
-                            <div id="coordDisplay" class="mt-2 text-xs text-gray-400"></div>
+
+                            <div class="mt-3 flex items-center justify-between">
+                                <div id="coordDisplay" class="text-xs text-blue-700 font-semibold bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-200">
+                                    📍 Coordinates: Loading...
+                                </div>
+                                <span class="text-xs text-slate-400 font-medium">Drag pin to adjust</span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="glass-card rounded-2xl p-6 border border-gray-700/50">
-                    <h3 class="text-lg font-semibold text-white mb-4">⚙️ Settings</h3>
+                <!-- Medical Alert -->
+                <div class="glass-card rounded-2xl p-6 border border-white/95 shadow-sm bg-white/85">
+                    <h3 class="text-base font-bold text-slate-800 mb-4">🩺 Medical Details & Alerts</h3>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-2">Pre-existing Medical Conditions</label>
+                        {{ form.medical_conditions }}
+                        <p class="text-slate-500 text-xs mt-2 font-medium">🚨 In case of an emergency at a job site, these details can assist medical responders and your active employer.</p>
+                    </div>
+                </div>
+
+                <!-- Settings -->
+                <div class="glass-card rounded-2xl p-6 border border-white/95 shadow-sm bg-white/85">
+                    <h3 class="text-base font-bold text-slate-800 mb-4">⚙️ Availability & Photo</h3>
                     <div class="space-y-4">
-                        <div class="flex items-center justify-between">
+                        <div class="flex items-center justify-between p-3 bg-blue-50/40 rounded-xl border border-blue-100">
                             <div>
-                                <p class="text-sm font-medium text-gray-200">Availability Status</p>
-                                <p class="text-xs text-gray-500">Toggle to show employers you're ready to work</p>
+                                <p class="text-sm font-bold text-slate-800">Availability Status</p>
+                                <p class="text-xs text-slate-500 font-medium">Toggle on to appear in search results for employers</p>
                             </div>
                             <label class="toggle-switch">
                                 {{ form.is_available }}
@@ -127,15 +183,15 @@
                             </label>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-2">Profile Photo</label>
+                            <label class="block text-xs font-bold text-slate-600 mb-2">Profile Photo</label>
                             {{ form.profile_photo }}
                         </div>
                     </div>
                 </div>
 
                 <button type="submit"
-                        class="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-semibold rounded-xl transition-all shadow-lg shadow-blue-900/30">
-                    💾 Save Profile
+                        class="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-all shadow-md shadow-blue-500/25 text-sm">
+                    💾 Save Profile Changes
                 </button>
             </form>
         </div>
@@ -145,36 +201,106 @@
 
 {% block extra_js %}
 <script>
-    // Initialize Leaflet map for location picking
-    const initLat = parseFloat("{{ profile.latitude|default:'12.9716' }}");
-    const initLng = parseFloat("{{ profile.longitude|default:'77.5946' }}");
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize coordinates (default to existing profile coords or Bangalore)
+        let initLat = parseFloat("{{ profile.latitude|default:'12.9716' }}") || 12.9716;
+        let initLng = parseFloat("{{ profile.longitude|default:'77.5946' }}") || 77.5946;
 
-    const map = L.map('locationMap').setView([initLat, initLng], 13);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
+        const map = L.map('locationMap', {
+            zoomControl: true,
+            scrollWheelZoom: true
+        }).setView([initLat, initLng], 13);
 
-    let marker = L.marker([initLat, initLng], {draggable: true}).addTo(map);
-    updateCoordDisplay(initLat, initLng);
+        const tileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd',
+            maxZoom: 19
+        }).addTo(map);
 
-    marker.on('dragend', function(e) {
-        const pos = e.target.getLatLng();
-        setCoords(pos.lat, pos.lng);
+        tileLayer.on('tileerror', function(error, tile) {
+            if (tile && !tile._hasFallback) {
+                tile._hasFallback = true;
+                const coords = error.coords;
+                tile.src = `https://tile.openstreetmap.org/${coords.z}/${coords.x}/${coords.y}.png`;
+            }
+        });
+
+        // Responsive container sizing fix
+        setTimeout(() => map.invalidateSize(), 150);
+        setTimeout(() => map.invalidateSize(), 500);
+        window.addEventListener('resize', () => map.invalidateSize());
+
+        // Custom draggable pin icon
+        const pinIcon = L.divIcon({
+            html: `<div style="background:linear-gradient(135deg,#2563eb,#1d4ed8); width:38px; height:38px; border-radius:50% 50% 50% 0; transform:rotate(-45deg); border:3px solid white; box-shadow:0 4px 14px rgba(37,99,235,0.5); display:flex; align-items:center; justify-content:center;">
+                       <div style="transform:rotate(45deg); font-size:16px;">📍</div>
+                   </div>`,
+            iconSize: [38, 38],
+            iconAnchor: [19, 38],
+            popupAnchor: [0, -40],
+            className: ''
+        });
+
+        let marker = L.marker([initLat, initLng], {draggable: true, icon: pinIcon}).addTo(map);
+
+        function setCoords(lat, lng) {
+            const latInput = document.getElementById('id_latitude');
+            const lngInput = document.getElementById('id_longitude');
+            if (latInput) latInput.value = lat.toFixed(6);
+            if (lngInput) lngInput.value = lng.toFixed(6);
+            updateCoordDisplay(lat, lng);
+        }
+
+        function updateCoordDisplay(lat, lng) {
+            const display = document.getElementById('coordDisplay');
+            if (display) {
+                display.textContent = `📍 Coordinates: ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+            }
+        }
+
+        // Initialize display and inputs
+        setCoords(initLat, initLng);
+
+        marker.on('dragend', function(e) {
+            const pos = e.target.getLatLng();
+            setCoords(pos.lat, pos.lng);
+        });
+
+        map.on('click', function(e) {
+            marker.setLatLng(e.latlng);
+            setCoords(e.latlng.lat, e.latlng.lng);
+        });
+
+        // Geolocation button
+        const detectBtn = document.getElementById('detectLocationBtn');
+        if (detectBtn) {
+            detectBtn.addEventListener('click', function() {
+                detectBtn.textContent = '⌛ Detecting...';
+                if (!navigator.geolocation) {
+                    alert('Geolocation is not supported by your browser.');
+                    detectBtn.textContent = '📡 Detect My Location';
+                    return;
+                }
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        const lat = pos.coords.latitude;
+                        const lng = pos.coords.longitude;
+                        marker.setLatLng([lat, lng]);
+                        setCoords(lat, lng);
+                        map.flyTo([lat, lng], 14);
+                        detectBtn.textContent = '✓ Location Detected';
+                        setTimeout(() => {
+                            detectBtn.textContent = '📡 Detect My Location';
+                        }, 3000);
+                    },
+                    (err) => {
+                        detectBtn.textContent = '📡 Detect My Location';
+                        alert('Unable to retrieve location. Please check browser permissions or click directly on the map.');
+                    },
+                    { enableHighAccuracy: true, timeout: 8000 }
+                );
+            });
+        }
     });
-
-    map.on('click', function(e) {
-        marker.setLatLng(e.latlng);
-        setCoords(e.latlng.lat, e.latlng.lng);
-    });
-
-    function setCoords(lat, lng) {
-        document.getElementById('id_latitude').value = lat.toFixed(6);
-        document.getElementById('id_longitude').value = lng.toFixed(6);
-        updateCoordDisplay(lat, lng);
-    }
-
-    function updateCoordDisplay(lat, lng) {
-        document.getElementById('coordDisplay').textContent = `📍 Coordinates: ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-    }
 </script>
 {% endblock %}

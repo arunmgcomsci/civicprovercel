@@ -25,9 +25,29 @@
                     <span class="toggle-slider"></span>
                 </label>
             </div>
+            <a href="{% url 'emergency_view' %}" class="px-4 py-2 bg-red-600 hover:bg-red-500 text-white text-sm font-semibold rounded-xl transition-all shadow-lg shadow-red-900/30 flex items-center gap-2 border border-red-500 animate-pulse">
+                🚨 Emergency
+            </a>
             <a href="{% url 'worker_profile_setup' %}" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-xl transition-all">✏️ Edit Profile</a>
         </div>
     </div>
+
+    <!-- Emergency Warning Banner -->
+    <div id="activeEmergencyBanner" class="mb-6 hidden animate-fade-in">
+        <div class="p-4 bg-red-950/40 border border-red-500/50 rounded-2xl flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <span class="text-xl">🚨</span>
+                <div>
+                    <p class="text-white font-bold text-sm">Active Emergency Triggered!</p>
+                    <p class="text-red-400 text-xs font-medium">You have an active emergency call in progress.</p>
+                </div>
+            </div>
+            <a href="{% url 'emergency_view' %}" class="px-4 py-1.5 bg-red-600 hover:bg-red-500 text-white text-xs font-semibold rounded-xl transition-all flex items-center gap-1 shadow-md shadow-red-950/40">
+                Open Emergency Panel
+            </a>
+        </div>
+    </div>
+
 
     <!-- Stats Cards -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
@@ -232,5 +252,25 @@
             setTimeout(() => toast.remove(), 3500);
         }
     });
+
+    // Emergency Feature Polling
+    async function checkActiveEmergency() {
+        try {
+            const res = await fetch('{% url "get_active_emergency" %}');
+            const data = await res.json();
+            const banner = document.getElementById('activeEmergencyBanner');
+
+            if (data.active) {
+                banner.classList.remove('hidden');
+            } else {
+                banner.classList.add('hidden');
+            }
+        } catch (e) {
+            console.error("Error checking emergency status:", e);
+        }
+    }
+
+    checkActiveEmergency();
+    setInterval(checkActiveEmergency, 5000);
 </script>
 {% endblock %}

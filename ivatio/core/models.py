@@ -72,8 +72,10 @@ class UserProfile(models.Model):
     location_name = models.CharField(max_length=200, blank=True)
     is_verified = models.BooleanField(default=False)
     profile_photo = models.ImageField(upload_to='profiles/', null=True, blank=True)
+    medical_conditions = models.TextField(blank=True, default='', verbose_name="Medical Alerts / Pre-existing Conditions")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
 
     def __str__(self):
         return f"{self.user.get_full_name() or self.user.username} ({self.role})"
@@ -193,3 +195,23 @@ class WorkerAvailabilityLog(models.Model):
     def __str__(self):
         status = "Available" if self.became_available else "Busy"
         return f"{self.worker} → {status} at {self.logged_at}"
+
+
+class EmergencyCall(models.Model):
+    STATUS_CHOICES = [
+        ('ACTIVE', 'Active'),
+        ('ENDED', 'Ended'),
+    ]
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='emergency_calls')
+    service_type = models.CharField(max_length=50)  # e.g. 'AMBULANCE', 'FIRE FORCE', etc.
+    status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='ACTIVE')
+    condition = models.CharField(max_length=100, default='Panic / Urgent')
+    latitude = models.FloatField(null=True, blank=True)
+    longitude = models.FloatField(null=True, blank=True)
+    location_name = models.CharField(max_length=200, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    ended_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"Emergency: {self.user.username} - {self.service_type} ({self.status})"
+

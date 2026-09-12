@@ -16,7 +16,7 @@ from django.views.decorators.http import require_POST
 from django.db.models import Avg, Count
 from django.utils import timezone
 
-from .models import UserProfile, HireRequest, Review, WorkerAvailabilityLog
+from .models import UserProfile, HireRequest, Review, WorkerAvailabilityLog, EmergencyCall
 from .forms import (
     WorkerRegistrationForm, EmployerRegistrationForm,
     WorkerProfileForm, HireRequestForm, ReviewForm, WorkerSearchForm
@@ -346,23 +346,39 @@ def employer_dashboard(request):
     return render(request, 'employer_dashboard.html', context)
 
 
-@login_required
 def search_workers(request):
     """
     Main worker search page with Haversine-based proximity sorting.
     Displays interactive Leaflet.js map with worker pins.
     """
-    try:
-        profile = request.user.profile
-    except UserProfile.DoesNotExist:
-        profile = None
+    profile = None
+    if request.user.is_authenticated:
+        try:
+            profile = request.user.profile
+        except UserProfile.DoesNotExist:
+            profile = None
 
     form = WorkerSearchForm(request.GET)
 
-    # Default: Bangalore city center
-    user_lat = float(request.GET.get('lat', 12.9716))
-    user_lng = float(request.GET.get('lng', 77.5946))
-    radius = int(request.GET.get('radius', 10))
+    # Determine default location based on user profile if available, else Bangalore
+    default_lat = 12.9716
+    default_lng = 77.5946
+    if profile and profile.latitude and profile.longitude:
+        default_lat = profile.latitude
+        default_lng = profile.longitude
+
+    try:
+        user_lat = float(request.GET.get('lat', default_lat))
+        user_lng = float(request.GET.get('lng', default_lng))
+    except (ValueError, TypeError):
+        user_lat = default_lat
+        user_lng = default_lng
+
+    try:
+        radius = int(request.GET.get('radius', 10))
+    except (ValueError, TypeError):
+        radius = 10
+
     skill = request.GET.get('skill', '')
 
     workers_data = get_workers_with_distance(user_lat, user_lng, skill or None, radius)
@@ -402,7 +418,6 @@ def search_workers(request):
     return render(request, 'employer_search_directory.html', context)
 
 
-@login_required
 def worker_detail(request, pk):
     """Full worker profile detail page"""
     worker = get_object_or_404(UserProfile, pk=pk, role='WORKER')
@@ -552,3 +567,155 @@ def api_workers_nearby(request):
         })
 
     return JsonResponse({'workers': result, 'count': len(result)})
+
+
+@login_required
+@require_POST
+def trigger_emergency(request):
+    service_type = request.POST.get('service_type', 'GENERAL')
+    condition = request.POST.get('condition', 'Panic / Urgent')
+
+    # End any previous active calls first to avoid duplication
+    EmergencyCall.objects.filter(user=request.user, status='ACTIVE').update(
+        status='ENDED', ended_at=timezone.now()
+    )
+
+    # Try getting coordinates from profile
+    latitude = None
+    longitude = None
+    location_name = ""
+    try:
+        profile = request.user.profile
+        latitude = profile.latitude
+        longitude = profile.longitude
+        location_name = profile.location_name
+    except UserProfile.DoesNotExist:
+        pass
+
+    call = EmergencyCall.objects.create(
+        user=request.user,
+        service_type=service_type,
+        status='ACTIVE',
+        condition=condition,
+        latitude=latitude,
+        longitude=longitude,
+        location_name=location_name
+    )
+    return JsonResponse({'status': 'ok', 'call_id': call.id})
+
+
+@login_required
+@require_POST
+def end_emergency(request):
+    EmergencyCall.objects.filter(user=request.user, status='ACTIVE').update(
+        status='ENDED', ended_at=timezone.now()
+    )
+    return JsonResponse({'status': 'ok'})
+
+
+@login_required
+@require_POST
+def update_emergency_status(request):
+    condition = request.POST.get('condition', 'Panic / Urgent')
+    EmergencyCall.objects.filter(user=request.user, status='ACTIVE').update(
+        condition=condition
+    )
+    return JsonResponse({'status': 'ok'})
+
+
+@login_required
+def get_active_emergency(request):
+    try:
+        profile = request.user.profile
+    except UserProfile.DoesNotExist:
+        return JsonResponse({'active': False})
+
+    # 1. Check if current user has their own active emergency
+    own_call = EmergencyCall.objects.filter(user=request.user, status='ACTIVE').first()
+    if own_call:
+        return JsonResponse({
+            'active': True,
+            'is_own': True,
+            'service_type': own_call.service_type,
+            'condition': own_call.condition,
+            'created_at': own_call.created_at.isoformat(),
+            'elapsed_seconds': int((timezone.now() - own_call.created_at).total_seconds()),
+            'user_details': {
+                'name': request.user.get_full_name() or request.user.username,
+                'phone': profile.phone,
+                'location': profile.location_name,
+                'medical_conditions': profile.medical_conditions if profile.role == 'WORKER' else '',
+            }
+        })
+
+    # 2. Check if user is an Employer and their hired worker has an active emergency
+    if profile.role == 'EMPLOYER':
+        # Find active accepted hire requests for this employer
+        active_hires = HireRequest.objects.filter(employer=request.user, status='ACCEPTED')
+        for hire in active_hires:
+            worker_user = hire.worker.user
+            worker_call = EmergencyCall.objects.filter(user=worker_user, status='ACTIVE').first()
+            if worker_call:
+                return JsonResponse({
+                    'active': True,
+                    'is_own': False,
+                    'service_type': worker_call.service_type,
+                    'condition': worker_call.condition,
+                    'created_at': worker_call.created_at.isoformat(),
+                    'elapsed_seconds': int((timezone.now() - worker_call.created_at).total_seconds()),
+                    'user_details': {
+                        'name': worker_user.get_full_name() or worker_user.username,
+                        'id': hire.worker.id,
+                        'phone': hire.worker.phone,
+                        'location': hire.worker.location_name or hire.work_location or "Unknown",
+                        'medical_conditions': hire.worker.medical_conditions,
+                        'role': 'WORKER'
+                    }
+                })
+
+    # 3. Check if user is a Worker and their active employer has an active emergency
+    if profile.role == 'WORKER':
+        active_hires = HireRequest.objects.filter(worker=profile, status='ACCEPTED')
+        for hire in active_hires:
+            employer_user = hire.employer
+            employer_call = EmergencyCall.objects.filter(user=employer_user, status='ACTIVE').first()
+            if employer_call:
+                try:
+                    emp_profile = employer_user.profile
+                    emp_phone = emp_profile.phone
+                except UserProfile.DoesNotExist:
+                    emp_phone = ""
+                return JsonResponse({
+                    'active': True,
+                    'is_own': False,
+                    'service_type': employer_call.service_type,
+                    'condition': employer_call.condition,
+                    'created_at': employer_call.created_at.isoformat(),
+                    'elapsed_seconds': int((timezone.now() - employer_call.created_at).total_seconds()),
+                    'user_details': {
+                        'name': employer_user.get_full_name() or employer_user.username,
+                        'phone': emp_phone,
+                        'location': hire.work_location or "Hired Site",
+                        'medical_conditions': '',
+                        'role': 'EMPLOYER'
+                    }
+                })
+
+    return JsonResponse({'active': False})
+
+
+@login_required
+def emergency_view(request):
+    try:
+        profile = request.user.profile
+    except UserProfile.DoesNotExist:
+        messages.error(request, "Please complete your profile details first.")
+        return redirect('home')
+
+    context = {
+        'profile': profile,
+        'role': profile.role,
+    }
+    return render(request, 'emergency.html', context)
+
+

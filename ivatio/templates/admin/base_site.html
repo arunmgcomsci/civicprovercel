@@ -1,0 +1,19 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | CivicPro Admin{% endblock %}
+
+{% block branding %}
+<div id="site-name" style="display: flex; align-items: center; gap: 12px; padding: 4px 0;">
+    <a href="{% url 'admin:index' %}" style="display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit;">
+        <img src="{% static 'images/logo.png' %}" alt="CivicPro" style="height: 36px; width: 36px; border-radius: 8px; object-fit: cover; border: 1px solid rgba(255,255,255,0.2);">
+        <span style="font-weight: 700; font-size: 1.25rem; letter-spacing: -0.025em; color: #fff;">CivicPro Admin</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}">
+    <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}">
+{% endblock %}

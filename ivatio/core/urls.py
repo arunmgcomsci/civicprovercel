@@ -30,6 +30,15 @@ urlpatterns = [
     # Reviews
     path('review/<int:hire_request_pk>/submit/', views.submit_review, name='submit_review'),
 
+    # Emergency Services
+    path('emergency/', views.emergency_view, name='emergency_view'),
+    path('emergency/trigger/', views.trigger_emergency, name='trigger_emergency'),
+    path('emergency/end/', views.end_emergency, name='end_emergency'),
+    path('emergency/update-status/', views.update_emergency_status, name='update_emergency_status'),
+    path('emergency/active/', views.get_active_emergency, name='get_active_emergency'),
+
+
     # API
     path('api/workers/', views.api_workers_nearby, name='api_workers_nearby'),
 ]
+

@@ -1,0 +1,396 @@
+{% extends 'base.html' %}
+{% block title %}Emergency Support — CivicPro{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-6 py-10">
+
+    <!-- Title Header -->
+    <div class="mb-8 flex items-center gap-3">
+        <span class="text-3xl">🚨</span>
+        <div>
+            <h1 class="text-3xl font-bold text-white tracking-tight">Emergency Support</h1>
+            <p class="text-gray-400 mt-1">Manage your profile, availability, and hire requests</p>
+        </div>
+    </div>
+
+    <!-- Active Call Header Block (shown when active) -->
+    <div id="activeEmergencyPanel" class="mb-8 hidden">
+        <div class="glass-card rounded-2xl p-6 border-2 border-red-500/60 relative overflow-hidden shadow-2xl shadow-red-950/20">
+            <div class="absolute inset-0 bg-red-950/10 pointer-events-none animate-pulse-slow"></div>
+            <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <!-- Status & Title -->
+                <div class="flex items-center gap-3">
+                    <span class="flex h-3 w-3 relative">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                    </span>
+                    <h3 class="text-lg font-bold text-white uppercase tracking-wider">
+                        Active Emergency Call: <span id="activeServiceType" class="text-red-400">AMBULANCE</span>
+                    </h3>
+                </div>
+
+                <!-- Timer & Action Buttons -->
+                <div class="flex items-center gap-4 flex-wrap">
+                    <div class="flex items-center gap-2 bg-red-950/50 border border-red-800/40 px-3 py-1.5 rounded-xl">
+                        <span class="text-xs text-red-400 font-medium">⏱ Dispatch Timer</span>
+                        <span id="emergencyTimer" class="font-mono text-lg font-bold text-white">05:00</span>
+                    </div>
+
+                    <button onclick="endEmergencyCall()" class="px-5 py-2.5 bg-red-600 hover:bg-red-500 text-white text-sm font-semibold rounded-xl transition-all flex items-center gap-2">
+                        ❌ End Call
+                    </button>
+
+                    <button onclick="scrollToDirectory()" class="px-5 py-2.5 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 text-sm font-semibold rounded-xl transition-all">
+                        + Add More Services
+                    </button>
+
+                    <!-- Dropdown status selector (Only visible if own call or worker dashboard) -->
+                    <div class="relative" id="statusSelectContainer">
+                        <select id="workerStatusSelect" onchange="updateWorkerStatus(this.value)" class="appearance-none pr-8 pl-4 py-2.5 bg-gray-800/90 border border-gray-700 text-red-400 text-sm font-medium rounded-xl focus:outline-none focus:border-red-500 transition-all cursor-pointer">
+                            <option value="Panic / Urgent">Current Worker Status (Alert)</option>
+                            <option value="Injured">Injured</option>
+                            <option value="Unconscious">Unconscious</option>
+                            <option value="Trapped / Stuck">Trapped / Stuck</option>
+                            <option value="Medical Emergency">Medical Emergency</option>
+                            <option value="Other Crisis">Other Crisis</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
+                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Two-Column Layout -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Left Side: Directory -->
+        <div class="lg:col-span-2 space-y-6">
+            <div class="glass-card rounded-2xl border border-gray-700/50 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-700">
+                    <h2 class="text-lg font-semibold text-white">Emergency Services Directory</h2>
+                </div>
+                <div class="divide-y divide-gray-800/60 p-6 space-y-4">
+                    
+                    <!-- AMBULANCE -->
+                    <div class="flex items-center justify-between flex-wrap gap-4 pb-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-blue-600/10 flex items-center justify-center text-2xl border border-blue-500/25">🚑</div>
+                            <div>
+                                <h4 class="font-bold text-white">AMBULANCE</h4>
+                                <p class="text-xs text-gray-400">Medical emergency and trauma support</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <span class="text-sm font-mono text-gray-300">108 (Dial)</span>
+                            <button onclick="triggerEmergencyCall('AMBULANCE')" class="px-5 py-2.5 bg-red-600 hover:bg-red-500 text-white text-xs font-bold rounded-xl transition-all uppercase tracking-wider shadow-lg shadow-red-950/20">Call</button>
+                        </div>
+                    </div>
+
+                    <!-- FIRE FORCE -->
+                    <div class="flex items-center justify-between flex-wrap gap-4 py-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-red-600/10 flex items-center justify-center text-2xl border border-red-500/25">🚒</div>
+                            <div>
+                                <h4 class="font-bold text-white">FIRE FORCE</h4>
+                                <p class="text-xs text-gray-400">Firefighting and rescue squads</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <span class="text-sm font-mono text-gray-300">101 (Dial)</span>
+                            <button onclick="triggerEmergencyCall('FIRE FORCE')" class="px-5 py-2.5 bg-red-600 hover:bg-red-500 text-white text-xs font-bold rounded-xl transition-all uppercase tracking-wider shadow-lg shadow-red-950/20">Call</button>
+                        </div>
+                    </div>
+
+                    <!-- POLICE DEPARTMENTS -->
+                    <div class="flex flex-col gap-4 py-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center text-2xl border border-blue-500/25">👮</div>
+                            <div>
+                                <h4 class="font-bold text-white">POLICE SERVICES</h4>
+                                <p class="text-xs text-gray-400">Emergency police assistance and nearby stations</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pl-2">
+                            <!-- General Emergency -->
+                            <div class="bg-gray-800/30 border border-gray-700/30 rounded-xl p-3.5 flex items-center justify-between">
+                                <div>
+                                    <h5 class="text-sm font-semibold text-white">Control Room (General)</h5>
+                                    <p class="text-xs text-gray-400">Standard Police Helpline</p>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-xs font-mono text-gray-300">100 (Dial)</span>
+                                    <button onclick="triggerEmergencyCall('POLICE CONTROL')" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-lg transition-all">Call</button>
+                                </div>
+                            </div>
+
+                            <!-- Shornur Police Station -->
+                            <div class="bg-gray-800/30 border border-gray-700/30 rounded-xl p-3.5 flex items-center justify-between">
+                                <div>
+                                    <h5 class="text-sm font-semibold text-white">Shornur Police Station</h5>
+                                    <p class="text-xs text-gray-400">Local station (0.5 km)</p>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-xs font-mono text-gray-300">0466-2222223</span>
+                                    <button onclick="triggerEmergencyCall('SHORNUR POLICE')" class="px-3 py-1.5 bg-red-600 hover:bg-red-500 text-white text-xs font-bold rounded-lg transition-all">Call</button>
+                                </div>
+                            </div>
+
+                            <!-- Cheruthuruthy Police Station -->
+                            <div class="bg-gray-800/30 border border-gray-700/30 rounded-xl p-3.5 flex items-center justify-between">
+                                <div>
+                                    <h5 class="text-sm font-semibold text-white">Cheruthuruthy Police Station</h5>
+                                    <p class="text-xs text-gray-400">Nearby station (3.2 km)</p>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-xs font-mono text-gray-300">04884-262333</span>
+                                    <button onclick="triggerEmergencyCall('CHERUTHURUTHY POLICE')" class="px-3 py-1.5 bg-red-600 hover:bg-red-500 text-white text-xs font-bold rounded-lg transition-all">Call</button>
+                                </div>
+                            </div>
+
+                            <!-- Ottapalam Police Station -->
+                            <div class="bg-gray-800/30 border border-gray-700/30 rounded-xl p-3.5 flex items-center justify-between">
+                                <div>
+                                    <h5 class="text-sm font-semibold text-white">Ottapalam Police Station</h5>
+                                    <p class="text-xs text-gray-400">Nearby station (13 km)</p>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-xs font-mono text-gray-300">0466-2244233</span>
+                                    <button onclick="triggerEmergencyCall('OTTAPALAM POLICE')" class="px-3 py-1.5 bg-red-600 hover:bg-red-500 text-white text-xs font-bold rounded-lg transition-all">Call</button>
+                                </div>
+                            </div>
+
+                            <!-- Pattambi Police Station -->
+                            <div class="bg-gray-800/30 border border-gray-700/30 rounded-xl p-3.5 flex items-center justify-between">
+                                <div>
+                                    <h5 class="text-sm font-semibold text-white">Pattambi Police Station</h5>
+                                    <p class="text-xs text-gray-400">Nearby station (18 km)</p>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-xs font-mono text-gray-300">0466-2212233</span>
+                                    <button onclick="triggerEmergencyCall('PATTAMBI POLICE')" class="px-3 py-1.5 bg-red-600 hover:bg-red-500 text-white text-xs font-bold rounded-lg transition-all">Call</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TALUK HOSPITAL -->
+                    <div class="flex items-center justify-between flex-wrap gap-4 py-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center text-2xl border border-emerald-500/25">🏥</div>
+                            <div>
+                                <h4 class="font-bold text-white">Shornur Taluk Hospital</h4>
+                                <p class="text-xs text-gray-400">Local clinical and hospital support</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <span class="text-sm font-mono text-gray-300">+91 483 123456 (Dial)</span>
+                            <button onclick="triggerEmergencyCall('HOSPITAL')" class="px-5 py-2.5 bg-red-600 hover:bg-red-500 text-white text-xs font-bold rounded-xl transition-all uppercase tracking-wider shadow-lg shadow-red-950/20">Call</button>
+                        </div>
+                    </div>
+
+                    <!-- DISTRICT EMERGENCY MANAGEMENT -->
+                    <div class="flex items-center justify-between flex-wrap gap-4 pt-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-orange-600/10 flex items-center justify-center text-2xl border border-orange-500/25">🚨</div>
+                            <div>
+                                <h4 class="font-bold text-white">District Emergency Management</h4>
+                                <p class="text-xs text-gray-400">Disaster support and civil defense</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <span class="text-sm font-mono text-gray-300">1077 (Dial)</span>
+                            <button onclick="triggerEmergencyCall('DISTRICT_MANAGEMENT')" class="px-5 py-2.5 bg-red-600 hover:bg-red-500 text-white text-xs font-bold rounded-xl transition-all uppercase tracking-wider shadow-lg shadow-red-950/20">Call</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side: Details & Alerts -->
+        <div class="space-y-6">
+            
+            <!-- Worker details panel (Always present, dynamically populated or static fallback) -->
+            <div class="glass-card rounded-2xl p-6 border border-gray-700/50">
+                <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Worker Details:</h3>
+                <div class="space-y-3 text-sm">
+                    <p class="text-gray-400">Name: <span id="detailName" class="text-white font-medium">{% if role == 'WORKER' %}{{ request.user.get_full_name }}{% else %}Loading...{% endif %}</span></p>
+                    <p class="text-gray-400">ID: <span id="detailId" class="text-white font-mono">{% if role == 'WORKER' %}WP-{{ profile.id|stringformat:"04d" }}{% else %}Loading...{% endif %}</span></p>
+                    <p class="text-gray-400">Location: <span id="detailLocation" class="text-white font-medium">{% if role == 'WORKER' %}{{ profile.location_name|default:"Not specified" }}{% else %}Loading...{% endif %}</span></p>
+                    <p class="text-gray-400">Contact: <span id="detailContact" class="text-white font-medium">{% if role == 'WORKER' %}{{ profile.phone|default:"Not specified" }}{% else %}Loading...{% endif %}</span></p>
+                    <p class="text-gray-400">Condition: <span id="detailCondition" class="text-red-400 font-semibold">Normal</span></p>
+                </div>
+            </div>
+
+            <!-- Medical Alerts Panel -->
+            <div class="glass-card rounded-2xl p-6 border border-red-500/20 bg-red-950/5">
+                <h3 class="text-red-400 font-bold flex items-center gap-2 mb-4">
+                    <span>*</span> Medical Alerts
+                </h3>
+                <p id="detailMedicalAlerts" class="text-sm text-gray-300 leading-relaxed">
+                    {% if role == 'WORKER' %}
+                        {% if profile.medical_conditions %}
+                            {{ profile.medical_conditions }}
+                        {% else %}
+                            Medical alerts list any critical pre-existing medical conditions for this worker. Use profile settings to add details.
+                        {% endif %}
+                    {% else %}
+                        Medical alerts list any critical pre-existing medical conditions for this worker.
+                    {% endif %}
+                </p>
+                {% if role == 'WORKER' and not profile.medical_conditions %}
+                <a href="{% url 'worker_profile_setup' %}" class="mt-4 inline-block text-xs text-blue-400 hover:text-blue-300 underline font-medium">✏️ Add Medical Conditions</a>
+                {% endif %}
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let timerInterval = null;
+    const userRole = "{{ role }}";
+
+    function startTimer(elapsedSeconds) {
+        if (timerInterval) clearInterval(timerInterval);
+        const duration = 300; // 5 minutes countdown
+        let remaining = duration - elapsedSeconds;
+
+        function updateDisplay() {
+            if (remaining <= 0) {
+                document.getElementById('emergencyTimer').textContent = "00:00";
+                clearInterval(timerInterval);
+                return;
+            }
+            const m = Math.floor(remaining / 60);
+            const s = remaining % 60;
+            document.getElementById('emergencyTimer').textContent =
+                `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+            remaining--;
+        }
+
+        updateDisplay();
+        timerInterval = setInterval(updateDisplay, 1000);
+    }
+
+    async function triggerEmergencyCall(serviceType) {
+        const formData = new FormData();
+        formData.append('service_type', serviceType);
+        formData.append('condition', 'Panic / Urgent');
+
+        const res = await fetch('{% url "trigger_emergency" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: formData
+        });
+        const data = await res.json();
+        if (data.status === 'ok') {
+            checkActiveEmergency();
+            document.getElementById('activeEmergencyPanel').scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+
+    async function endEmergencyCall() {
+        const res = await fetch('{% url "end_emergency" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        });
+        const data = await res.json();
+        if (data.status === 'ok') {
+            if (timerInterval) clearInterval(timerInterval);
+            document.getElementById('activeEmergencyPanel').classList.add('hidden');
+            checkActiveEmergency();
+        }
+    }
+
+    async function updateWorkerStatus(condition) {
+        const formData = new FormData();
+        formData.append('condition', condition);
+
+        const res = await fetch('{% url "update_emergency_status" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: formData
+        });
+        const data = await res.json();
+        if (data.status === 'ok') {
+            document.getElementById('detailCondition').textContent = condition;
+        }
+    }
+
+    async function checkActiveEmergency() {
+        try {
+            const res = await fetch('{% url "get_active_emergency" %}');
+            const data = await res.json();
+            const panel = document.getElementById('activeEmergencyPanel');
+
+            if (data.active) {
+                panel.classList.remove('hidden');
+                document.getElementById('activeServiceType').textContent = data.service_type;
+                document.getElementById('detailCondition').textContent = data.condition;
+
+                // Sync status selector
+                if (document.getElementById('workerStatusSelect')) {
+                    document.getElementById('workerStatusSelect').value = data.condition;
+                }
+
+                // If Employer, populate details from active worker emergency
+                if (userRole === 'EMPLOYER') {
+                    document.getElementById('detailName').textContent = data.user_details.name;
+                    document.getElementById('detailId').textContent = data.user_details.id ? `WP-${String(data.user_details.id).padStart(4, '0')}` : "N/A";
+                    document.getElementById('detailLocation').textContent = data.user_details.location;
+                    document.getElementById('detailContact').textContent = data.user_details.phone || "Not specified";
+                    document.getElementById('detailMedicalAlerts').textContent = data.user_details.medical_conditions || "No pre-existing critical medical conditions listed by this worker.";
+                    // Employers cannot edit/change the worker's status dropdown directly
+                    document.getElementById('statusSelectContainer').classList.add('hidden');
+                } else {
+                    document.getElementById('statusSelectContainer').classList.remove('hidden');
+                }
+
+                startTimer(data.elapsed_seconds);
+            } else {
+                panel.classList.add('hidden');
+                if (timerInterval) clearInterval(timerInterval);
+
+                if (userRole === 'EMPLOYER') {
+                    document.getElementById('detailName').textContent = "No Active Emergency";
+                    document.getElementById('detailId').textContent = "N/A";
+                    document.getElementById('detailLocation').textContent = "N/A";
+                    document.getElementById('detailContact').textContent = "N/A";
+                    document.getElementById('detailCondition').textContent = "Normal";
+                    document.getElementById('detailMedicalAlerts').textContent = "Medical alerts list any critical pre-existing medical conditions for this worker.";
+                } else {
+                    document.getElementById('detailCondition').textContent = "Normal";
+                }
+            }
+        } catch (e) {
+            console.error("Error checking emergency details:", e);
+        }
+    }
+
+    function scrollToDirectory() {
+        window.scrollTo({
+            top: document.body.scrollHeight,
+            behavior: 'smooth'
+        });
+    }
+
+    // Initialize and Poll
+    checkActiveEmergency();
+    setInterval(checkActiveEmergency, 5000);
+</script>
+{% endblock %}

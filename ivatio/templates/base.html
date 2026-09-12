@@ -1,33 +1,40 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="CivicPro — Connect with skilled daily-wage workers near you. Find electricians, plumbers, carpenters, painters and more.">
     <title>{% block title %}CivicPro — Hire Skilled Workers Near You{% endblock %}</title>
+    <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}">
+    <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}">
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
-            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
                         primary: {
                             50: '#eff6ff',
                             100: '#dbeafe',
+                            200: '#bfdbfe',
                             400: '#60a5fa',
                             500: '#3b82f6',
                             600: '#2563eb',
                             700: '#1d4ed8',
                             900: '#1e3a8a',
                         },
-                        surface: {
-                            800: '#1a1f2e',
-                            850: '#141824',
-                            900: '#0d1117',
-                            950: '#080c12',
+                        pastel: {
+                            50: '#f8fafc',
+                            100: '#f0f7ff',
+                            200: '#e0f0fe',
+                            300: '#cbe2f8',
+                            400: '#93c5fd',
+                            500: '#60a5fa',
+                            600: '#3b82f6',
+                            700: '#2563eb',
                         }
                     },
                     fontFamily: {
@@ -59,27 +66,37 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- Leaflet.js -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 
     <style>
         * { font-family: 'Inter', sans-serif; }
-        body { background-color: #0d1117; }
+        body {
+            background-color: #ebf5fe;
+            color: #1e293b;
+            background-image: 
+                radial-gradient(at 15% 15%, rgba(191, 219, 254, 0.45) 0, transparent 45%),
+                radial-gradient(at 85% 20%, rgba(224, 242, 254, 0.6) 0, transparent 50%),
+                radial-gradient(at 50% 85%, rgba(219, 234, 254, 0.5) 0, transparent 55%);
+            min-height: 100vh;
+        }
 
         /* Custom scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #141824; }
-        ::-webkit-scrollbar-thumb { background: #2563eb; border-radius: 3px; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #e2eafc; }
+        ::-webkit-scrollbar-thumb { background: #93c5fd; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #60a5fa; }
 
         /* Glassmorphism card */
         .glass-card {
-            background: rgba(26, 31, 46, 0.8);
+            background: rgba(255, 255, 255, 0.82);
             backdrop-filter: blur(16px);
-            border: 1px solid rgba(255,255,255,0.08);
+            border: 1px solid rgba(255, 255, 255, 0.95);
+            box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.05), 0 8px 10px -6px rgba(37, 99, 235, 0.03);
         }
 
         /* Gradient text */
         .gradient-text {
-            background: linear-gradient(135deg, #60a5fa, #818cf8, #c084fc);
+            background: linear-gradient(135deg, #1d4ed8, #2563eb, #3b82f6);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -87,26 +104,27 @@
 
         /* Glow effect */
         .glow-blue {
-            box-shadow: 0 0 30px rgba(59, 130, 246, 0.3);
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.25);
         }
 
         /* Nav active */
         .nav-active {
-            background: rgba(37, 99, 235, 0.2);
-            border-color: rgba(59, 130, 246, 0.5);
+            background: rgba(37, 99, 235, 0.08);
+            color: #2563eb !important;
+            font-weight: 600;
         }
 
         /* Status badges */
-        .badge-available { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
-        .badge-busy { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
-        .badge-pending { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
-        .badge-accepted { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
-        .badge-rejected { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
-        .badge-completed { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
+        .badge-available { background: rgba(16, 185, 129, 0.12); color: #047857; border: 1px solid rgba(16, 185, 129, 0.25); }
+        .badge-busy { background: rgba(239, 68, 68, 0.12); color: #b91c1c; border: 1px solid rgba(239, 68, 68, 0.25); }
+        .badge-pending { background: rgba(245, 158, 11, 0.12); color: #b45309; border: 1px solid rgba(245, 158, 11, 0.25); }
+        .badge-accepted { background: rgba(16, 185, 129, 0.12); color: #047857; border: 1px solid rgba(16, 185, 129, 0.25); }
+        .badge-rejected { background: rgba(239, 68, 68, 0.12); color: #b91c1c; border: 1px solid rgba(239, 68, 68, 0.25); }
+        .badge-completed { background: rgba(37, 99, 235, 0.12); color: #1d4ed8; border: 1px solid rgba(37, 99, 235, 0.25); }
 
         /* Hover card */
         .worker-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
-        .worker-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+        .worker-card:hover { transform: translateY(-4px); box-shadow: 0 20px 30px -10px rgba(37, 99, 235, 0.12); }
 
         /* Toggle switch */
         .toggle-switch {
@@ -120,7 +138,7 @@
             position: absolute;
             cursor: pointer;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: #374151;
+            background: #cbd5e1;
             border-radius: 28px;
             transition: 0.3s;
         }
@@ -130,6 +148,7 @@
             height: 22px; width: 22px;
             left: 3px; bottom: 3px;
             background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
             border-radius: 50%;
             transition: 0.3s;
         }
@@ -138,20 +157,38 @@
 
         /* Star rating */
         .star-rating { display: flex; gap: 4px; }
-        .star { color: #374151; font-size: 1.5rem; cursor: pointer; transition: color 0.1s; }
+        .star { color: #cbd5e1; font-size: 1.5rem; cursor: pointer; transition: color 0.1s; }
         .star.active, .star:hover, .star.hovered { color: #f59e0b; }
 
-        /* Map container */
-        #workerMap { border-radius: 16px; border: 1px solid rgba(255,255,255,0.08); }
+        /* Map containers */
+        #workerMap {
+            min-height: 500px;
+            height: 500px;
+            width: 100%;
+            position: relative;
+            border-radius: 16px;
+            border: 1px solid rgba(219, 234, 254, 0.8);
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.08);
+            z-index: 1;
+        }
+        #miniMap { min-height: 220px; height: 220px; width: 100%; z-index: 1; }
+        #locationMap { min-height: 280px; height: 300px; width: 100%; z-index: 1; }
+        .leaflet-container { font-family: 'Inter', sans-serif !important; background: #e8f2fc !important; }
 
         /* Leaflet popup custom */
         .leaflet-popup-content-wrapper {
-            background: #1a1f2e !important;
-            color: white !important;
-            border: 1px solid rgba(255,255,255,0.1) !important;
+            background: #ffffff !important;
+            color: #1e293b !important;
+            border: 1px solid rgba(191, 219, 254, 0.9) !important;
             border-radius: 12px !important;
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.12) !important;
         }
-        .leaflet-popup-tip { background: #1a1f2e !important; }
+        .leaflet-popup-content {
+            margin: 12px 14px !important;
+            line-height: 1.4 !important;
+            color: #1e293b !important;
+        }
+        .leaflet-popup-tip { background: #ffffff !important; }
 
         /* Toast notifications */
         .toast {
@@ -172,7 +209,7 @@
             appearance: none;
             height: 6px;
             border-radius: 3px;
-            background: #374151;
+            background: #cbd5e1;
             outline: none;
         }
         input[type="range"]::-webkit-slider-thumb {
@@ -183,38 +220,84 @@
             border-radius: 50%;
             background: #3b82f6;
             cursor: pointer;
-            box-shadow: 0 0 8px rgba(59,130,246,0.5);
+            box-shadow: 0 0 8px rgba(59,130,246,0.3);
+        }
+
+        /* Global pastel theme helpers */
+        h1:not([class*="text-"]):not([class*="gradient-text"]),
+        h2:not([class*="text-"]):not([class*="gradient-text"]),
+        h3:not([class*="text-"]):not([class*="gradient-text"]),
+        h4:not([class*="text-"]):not([class*="gradient-text"]) {
+            color: #0f172a;
+        }
+        .text-white:not(button):not(a[class*="bg-"]):not(span[class*="bg-"]):not(div[class*="bg-"]):not([class*="badge-"]):not([class*="animate-pulse"]) {
+            color: #0f172a;
+        }
+        .text-gray-400:not(button):not(a[class*="bg-"]):not(span[class*="bg-"]) {
+            color: #64748b;
+        }
+        .text-gray-300:not(button):not(a[class*="bg-"]):not(span[class*="bg-"]) {
+            color: #475569;
+        }
+        .text-gray-200:not(button):not(a[class*="bg-"]):not(span[class*="bg-"]) {
+            color: #334155;
+        }
+        .border-gray-700, .border-gray-700\/50, .border-gray-800 {
+            border-color: rgba(219, 234, 254, 0.8) !important;
+        }
+        .border-gray-600 {
+            border-color: #cbd5e1 !important;
+        }
+        .bg-gray-800:not(button):not(a):not(input) {
+            background-color: rgba(255, 255, 255, 0.85);
+        }
+        .bg-gray-900:not(button):not(a) {
+            background-color: rgba(240, 247, 255, 0.7);
+        }
+        .bg-gray-700:not(button):not(a) {
+            background-color: rgba(226, 238, 252, 0.6);
+        }
+        input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+        select, textarea {
+            background-color: #ffffff !important;
+            border-color: #cbd5e1 !important;
+            color: #0f172a !important;
+        }
+        input::placeholder, textarea::placeholder {
+            color: #94a3b8 !important;
         }
     </style>
 
     {% block extra_head %}{% endblock %}
 </head>
-<body class="min-h-screen text-gray-100 antialiased">
+<body class="min-h-screen text-slate-800 antialiased">
 
     <!-- Navigation -->
-    <nav class="sticky top-0 z-50 border-b border-gray-800" style="background: rgba(13,17,23,0.95); backdrop-filter: blur(20px);">
+    <nav class="sticky top-0 z-50 border-b border-blue-100/80" style="background: rgba(255, 255, 255, 0.88); backdrop-filter: blur(16px); box-shadow: 0 2px 10px rgba(37, 99, 235, 0.04);">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
 
                 <!-- Logo -->
                 <a href="{% url 'home' %}" class="flex items-center gap-3 group">
-                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-lg font-bold shadow-lg group-hover:scale-110 transition-transform">⚡</div>
-                    <span class="text-xl font-bold gradient-text">CivicPro</span>
+                    <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center shadow-md shadow-blue-500/20 group-hover:scale-105 transition-all overflow-hidden p-0.5">
+                        <img src="{% static 'images/logo.png' %}" alt="CivicPro Logo" class="w-full h-full object-cover rounded-lg">
+                    </div>
+                    <span class="text-xl font-bold text-slate-800 tracking-tight">CivicPro</span>
                 </a>
 
                 <!-- Center Nav Links -->
                 <div class="hidden md:flex items-center gap-1">
-                    <a href="{% url 'home' %}" class="px-4 py-2 text-sm font-medium text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-all">Home</a>
+                    <a href="{% url 'home' %}" class="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-blue-600 hover:bg-blue-50/70 rounded-xl transition-all">Home</a>
                     {% if user.is_authenticated %}
                         {% if user.profile.role == 'WORKER' %}
-                            <a href="{% url 'worker_dashboard' %}" class="px-4 py-2 text-sm font-medium text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-all">Dashboard</a>
-                            <a href="{% url 'worker_profile_setup' %}" class="px-4 py-2 text-sm font-medium text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-all">My Profile</a>
+                            <a href="{% url 'worker_dashboard' %}" class="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-blue-600 hover:bg-blue-50/70 rounded-xl transition-all">Dashboard</a>
+                            <a href="{% url 'worker_profile_setup' %}" class="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-blue-600 hover:bg-blue-50/70 rounded-xl transition-all">My Profile</a>
                         {% elif user.profile.role == 'EMPLOYER' %}
-                            <a href="{% url 'employer_dashboard' %}" class="px-4 py-2 text-sm font-medium text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-all">Dashboard</a>
-                            <a href="{% url 'search_workers' %}" class="px-4 py-2 text-sm font-medium text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-all">Find Workers</a>
+                            <a href="{% url 'employer_dashboard' %}" class="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-blue-600 hover:bg-blue-50/70 rounded-xl transition-all">Dashboard</a>
+                            <a href="{% url 'search_workers' %}" class="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-blue-600 hover:bg-blue-50/70 rounded-xl transition-all">Find Workers</a>
                         {% endif %}
                     {% else %}
-                        <a href="{% url 'search_workers' %}" class="px-4 py-2 text-sm font-medium text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-all">Find Workers</a>
+                        <a href="{% url 'search_workers' %}" class="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-blue-600 hover:bg-blue-50/70 rounded-xl transition-all">Find Workers</a>
                     {% endif %}
                 </div>
 
@@ -223,36 +306,36 @@
                     {% if user.is_authenticated %}
                         <!-- User Menu -->
                         <div class="relative" id="userMenuContainer">
-                            <button id="userMenuBtn" class="flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-800 border border-gray-700 hover:border-blue-500 transition-all">
-                                <div class="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-sm font-bold">
+                            <button id="userMenuBtn" class="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-white/90 border border-blue-100 hover:border-blue-300 shadow-sm transition-all">
+                                <div class="w-7 h-7 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-bold shadow-sm">
                                     {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
                                 </div>
-                                <span class="text-sm font-medium text-gray-300 hidden sm:block">{{ user.first_name }}</span>
-                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                                <span class="text-sm font-semibold text-slate-800 hidden sm:block">{{ user.first_name }}</span>
+                                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                             </button>
-                            <div id="userMenu" class="hidden absolute right-0 mt-2 w-48 glass-card rounded-xl shadow-2xl border border-gray-700 overflow-hidden z-50 animate-slide-up">
-                                <div class="px-4 py-3 border-b border-gray-700">
-                                    <p class="text-sm font-semibold text-white">{{ user.get_full_name }}</p>
-                                    <p class="text-xs text-gray-400">{{ user.profile.get_role_display }}</p>
+                            <div id="userMenu" class="hidden absolute right-0 mt-2 w-52 glass-card rounded-2xl shadow-xl border border-blue-100 overflow-hidden z-50 animate-slide-up">
+                                <div class="px-4 py-3 border-b border-blue-50 bg-blue-50/40">
+                                    <p class="text-sm font-bold text-slate-900">{{ user.get_full_name }}</p>
+                                    <p class="text-xs font-medium text-slate-500">{{ user.profile.get_role_display }}</p>
                                 </div>
                                 {% if user.profile.role == 'WORKER' %}
-                                    <a href="{% url 'worker_dashboard' %}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-all">📊 Dashboard</a>
-                                    <a href="{% url 'worker_profile_setup' %}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-all">✏️ Edit Profile</a>
+                                    <a href="{% url 'worker_dashboard' %}" class="block px-4 py-2.5 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-600 transition-all font-medium">📊 Dashboard</a>
+                                    <a href="{% url 'worker_profile_setup' %}" class="block px-4 py-2.5 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-600 transition-all font-medium">✏️ Edit Profile</a>
                                 {% elif user.profile.role == 'EMPLOYER' %}
-                                    <a href="{% url 'employer_dashboard' %}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-all">📊 Dashboard</a>
-                                    <a href="{% url 'search_workers' %}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-all">🔍 Find Workers</a>
+                                    <a href="{% url 'employer_dashboard' %}" class="block px-4 py-2.5 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-600 transition-all font-medium">📊 Dashboard</a>
+                                    <a href="{% url 'search_workers' %}" class="block px-4 py-2.5 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-600 transition-all font-medium">🔍 Find Workers</a>
                                 {% endif %}
                                 {% if user.is_superuser %}
-                                    <a href="/admin/" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-all">⚙️ Admin Panel</a>
+                                    <a href="/admin/" class="block px-4 py-2.5 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-600 transition-all font-medium">⚙️ Admin Panel</a>
                                 {% endif %}
-                                <div class="border-t border-gray-700">
-                                    <a href="{% url 'logout' %}" class="block px-4 py-2 text-sm text-red-400 hover:bg-red-900/20 hover:text-red-300 transition-all">🚪 Logout</a>
+                                <div class="border-t border-blue-50">
+                                    <a href="{% url 'logout' %}" class="block px-4 py-2.5 text-sm text-rose-600 hover:bg-rose-50 transition-all font-medium">🚪 Logout</a>
                                 </div>
                             </div>
                         </div>
                     {% else %}
-                        <a href="{% url 'login' %}" class="px-4 py-2 text-sm font-medium text-gray-300 hover:text-white transition-all">Login</a>
-                        <a href="{% url 'register_worker' %}" class="px-4 py-2 text-sm font-semibold bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white rounded-xl transition-all shadow-lg shadow-blue-900/30">Get Started</a>
+                        <a href="{% url 'login' %}" class="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-blue-600 transition-all">Login</a>
+                        <a href="{% url 'register_worker' %}" class="px-4 py-2 text-sm font-semibold bg-blue-600 hover:bg-blue-500 text-white rounded-xl transition-all shadow-md shadow-blue-500/20">Get Started</a>
                     {% endif %}
                 </div>
             </div>
@@ -284,52 +367,70 @@
     </main>
 
     <!-- Footer -->
-    <footer class="border-t border-gray-800 mt-20" style="background: #080c12;">
+    <footer class="border-t border-blue-200/70 mt-20" style="background: rgba(228, 239, 252, 0.7); backdrop-filter: blur(8px);">
         <div class="max-w-7xl mx-auto px-6 py-12">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                 <div class="md:col-span-2">
                     <div class="flex items-center gap-3 mb-4">
-                        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-lg font-bold">⚡</div>
-                        <span class="text-xl font-bold gradient-text">CivicPro</span>
+                        <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center shadow-md shadow-blue-500/20 overflow-hidden p-0.5">
+                            <img src="{% static 'images/logo.png' %}" alt="CivicPro Logo" class="w-full h-full object-cover rounded-lg">
+                        </div>
+                        <span class="text-xl font-bold text-slate-800">CivicPro</span>
                     </div>
-                    <p class="text-gray-400 text-sm leading-relaxed max-w-xs">
+                    <p class="text-slate-600 text-sm leading-relaxed max-w-xs">
                         Connecting skilled daily-wage workers directly with employers. No middlemen, fair pay, transparent hiring.
                     </p>
                     <div class="flex gap-3 mt-4">
-                        <span class="px-3 py-1 text-xs rounded-full bg-blue-900/30 border border-blue-800/50 text-blue-400">🏗️ Construction</span>
-                        <span class="px-3 py-1 text-xs rounded-full bg-purple-900/30 border border-purple-800/50 text-purple-400">⚡ Electrical</span>
-                        <span class="px-3 py-1 text-xs rounded-full bg-green-900/30 border border-green-800/50 text-green-400">🔧 Plumbing</span>
+                        <span class="px-3 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-700 border border-blue-200">🏗️ Construction</span>
+                        <span class="px-3 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-700 border border-purple-200">⚡ Electrical</span>
+                        <span class="px-3 py-1 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200">🔧 Plumbing</span>
                     </div>
                 </div>
                 <div>
-                    <h4 class="text-sm font-semibold text-white mb-3">For Workers</h4>
-                    <ul class="space-y-2 text-sm text-gray-400">
-                        <li><a href="{% url 'register_worker' %}" class="hover:text-blue-400 transition-colors">Create Profile</a></li>
-                        <li><a href="{% url 'worker_dashboard' %}" class="hover:text-blue-400 transition-colors">Worker Dashboard</a></li>
-                        <li><a href="#" class="hover:text-blue-400 transition-colors">How it Works</a></li>
+                    <h4 class="text-sm font-bold text-slate-800 mb-3">For Workers</h4>
+                    <ul class="space-y-2 text-sm text-slate-600 font-medium">
+                        <li><a href="{% url 'register_worker' %}" class="hover:text-blue-600 transition-colors">Create Profile</a></li>
+                        <li><a href="{% url 'worker_dashboard' %}" class="hover:text-blue-600 transition-colors">Worker Dashboard</a></li>
+                        <li><a href="#" class="hover:text-blue-600 transition-colors">How it Works</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="text-sm font-semibold text-white mb-3">For Employers</h4>
-                    <ul class="space-y-2 text-sm text-gray-400">
-                        <li><a href="{% url 'register_employer' %}" class="hover:text-blue-400 transition-colors">Post a Job</a></li>
-                        <li><a href="{% url 'search_workers' %}" class="hover:text-blue-400 transition-colors">Find Workers</a></li>
-                        <li><a href="{% url 'employer_dashboard' %}" class="hover:text-blue-400 transition-colors">My Hires</a></li>
+                    <h4 class="text-sm font-bold text-slate-800 mb-3">For Employers</h4>
+                    <ul class="space-y-2 text-sm text-slate-600 font-medium">
+                        <li><a href="{% url 'register_employer' %}" class="hover:text-blue-600 transition-colors">Post a Job</a></li>
+                        <li><a href="{% url 'search_workers' %}" class="hover:text-blue-600 transition-colors">Find Workers</a></li>
+                        <li><a href="{% url 'employer_dashboard' %}" class="hover:text-blue-600 transition-colors">My Hires</a></li>
                     </ul>
                 </div>
             </div>
-            <div class="border-t border-gray-800 mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <p class="text-xs text-gray-500">© 2024 CivicPro. Built with Django + Leaflet.js</p>
-                <div class="flex items-center gap-2 text-xs text-gray-500">
-                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse-slow"></span>
+            <div class="border-t border-blue-200/70 mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <p class="text-xs text-slate-500 font-medium">© 2024 CivicPro. Built with Django + Leaflet.js</p>
+                <div class="flex items-center gap-2 text-xs text-slate-600 font-medium">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                     All systems operational
                 </div>
             </div>
         </div>
     </footer>
 
-    <!-- Leaflet.js Script -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Leaflet.js Script with fallback -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script>
+        if (typeof L === 'undefined') {
+            document.write('<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"><\/script>');
+        }
+    </script>
+    <script>
+        // Ensure Leaflet default icons resolve correctly across CDNs
+        if (typeof L !== 'undefined') {
+            delete L.Icon.Default.prototype._getIconUrl;
+            L.Icon.Default.mergeOptions({
+                iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+                iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+            });
+        }
+    </script>
 
     <script>
         // User Menu Dropdown
