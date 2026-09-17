@@ -11,17 +11,17 @@
         <svg class="absolute top-0 left-0 w-full h-full object-cover" preserveAspectRatio="none" viewBox="0 0 1440 900" fill="none" xmlns="http://www.w3.org/2000/svg">
             <defs>
                 <linearGradient id="pastel-bg" x1="720" y1="0" x2="720" y2="900" gradientUnits="userSpaceOnUse">
-                    <stop stop-color="#f0f7ff"/>
-                    <stop offset="0.55" stop-color="#e2f0fe"/>
-                    <stop offset="1" stop-color="#d4e8fd"/>
+                    <stop stop-color="#fdf8f4"/>
+                    <stop offset="0.5" stop-color="#fbf2e5"/>
+                    <stop offset="1" stop-color="#f6e8d6"/>
                 </linearGradient>
                 <linearGradient id="wave-grad-1" x1="0" y1="200" x2="400" y2="900" gradientUnits="userSpaceOnUse">
-                    <stop stop-color="#cbe3f9" stop-opacity="0.55"/>
-                    <stop offset="1" stop-color="#d9ebfb" stop-opacity="0.3"/>
+                    <stop stop-color="#edd8bf" stop-opacity="0.6"/>
+                    <stop offset="1" stop-color="#f5e6d2" stop-opacity="0.35"/>
                 </linearGradient>
                 <linearGradient id="wave-grad-2" x1="1440" y1="150" x2="1000" y2="900" gradientUnits="userSpaceOnUse">
-                    <stop stop-color="#cbe3f9" stop-opacity="0.55"/>
-                    <stop offset="1" stop-color="#d9ebfb" stop-opacity="0.3"/>
+                    <stop stop-color="#edd8bf" stop-opacity="0.6"/>
+                    <stop offset="1" stop-color="#f5e6d2" stop-opacity="0.35"/>
                 </linearGradient>
             </defs>
 
@@ -30,31 +30,31 @@
 
             <!-- Left organic flowing waves -->
             <path d="M-120 180C140 140 260 320 210 570C160 820 40 880 -60 920L-120 920V180Z" fill="url(#wave-grad-1)"/>
-            <path d="M-70 100C180 80 320 250 250 510C180 770 70 840 -30 880L-70 880V100Z" fill="#e1f0fc" fill-opacity="0.7"/>
+            <path d="M-70 100C180 80 320 250 250 510C180 770 70 840 -30 880L-70 880V100Z" fill="#f2e3cf" fill-opacity="0.65"/>
 
             <!-- Right organic flowing waves -->
             <path d="M1560 140C1300 170 1180 370 1230 630C1280 860 1400 890 1510 920L1560 920V140Z" fill="url(#wave-grad-2)"/>
-            <path d="M1510 60C1260 110 1140 310 1200 560C1260 800 1370 850 1470 880L1510 880V60Z" fill="#e1f0fc" fill-opacity="0.7"/>
+            <path d="M1510 60C1260 110 1140 310 1200 560C1260 800 1370 850 1470 880L1510 880V60Z" fill="#f2e3cf" fill-opacity="0.65"/>
 
             <!-- Gentle curved ground swell -->
-            <path d="M0 720C320 660 560 760 900 700C1220 650 1380 740 1440 760V900H0V720Z" fill="#d7ebfd" fill-opacity="0.4"/>
+            <path d="M0 720C320 660 560 760 900 700C1220 650 1380 740 1440 760V900H0V720Z" fill="#ebd7bf" fill-opacity="0.45"/>
         </svg>
     </div>
 
     <div class="relative max-w-7xl mx-auto px-6 py-20 text-center">
         <!-- Status Badge -->
-        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/90 backdrop-blur border border-emerald-200 shadow-sm text-slate-700 text-sm font-semibold mb-8 animate-slide-up">
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#f4ece1] border border-[#e5d8c5] shadow-sm text-[#4a3f35] text-sm font-semibold mb-8 animate-slide-up">
             <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
             {{ available_workers }} Workers Available Right Now
         </div>
 
         <!-- Main Heading -->
         <h1 class="text-5xl md:text-7xl font-extrabold text-slate-900 leading-tight mb-6 tracking-tight animate-slide-up" style="animation-delay:0.1s">
-            Hire <span class="text-blue-600">Skilled Workers</span><br>Near You — Instantly
+            Hire <span class="text-[#9c5120]">Skilled Workers</span><br>Near You — Instantly
         </h1>
 
         <!-- Subtitle -->
-        <p class="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto mb-10 leading-relaxed font-normal animate-slide-up" style="animation-delay:0.2s">
+        <p class="text-lg md:text-xl text-[#574c43] max-w-2xl mx-auto mb-10 leading-relaxed font-normal animate-slide-up" style="animation-delay:0.2s">
             Connect directly with verified electricians, plumbers, carpenters, painters and more.
             No middlemen. Fair pay. Real-time availability.
         </p>
@@ -62,12 +62,12 @@
         <!-- CTA Buttons -->
         <div class="flex flex-col sm:flex-row gap-4 justify-center mb-16 animate-slide-up" style="animation-delay:0.3s">
             <a href="{% url 'search_workers' %}"
-               class="group px-7 py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-2xl transition-all shadow-lg shadow-blue-500/25 text-base flex items-center justify-center gap-2">
+               class="group px-7 py-3.5 bg-[#9c5120] hover:bg-[#834017] text-white font-semibold rounded-2xl transition-all shadow-lg shadow-amber-950/20 text-base flex items-center justify-center gap-2">
                 🔍 Find Workers Near Me
                 <span class="group-hover:translate-x-1 transition-transform">→</span>
             </a>
             <a href="{% url 'register_worker' %}"
-               class="px-7 py-3.5 bg-white/85 hover:bg-white border border-blue-200 hover:border-blue-300 text-slate-700 hover:text-slate-900 font-semibold rounded-2xl transition-all text-base shadow-sm hover:shadow flex items-center justify-center gap-2">
+               class="px-7 py-3.5 bg-[#fdfaf6] hover:bg-white border border-[#e2d5c2] hover:border-[#cfbeaa] text-[#382e25] font-semibold rounded-2xl transition-all text-base shadow-sm hover:shadow flex items-center justify-center gap-2">
                 👷 Register as Worker
             </a>
         </div>
@@ -75,33 +75,33 @@
         <!-- Stats Row matching reference image -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto animate-slide-up" style="animation-delay:0.4s">
             <!-- Stat 1 -->
-            <div class="bg-white/80 backdrop-blur-md rounded-2xl p-5 text-center border border-white shadow-sm hover:shadow-md transition-all">
-                <div class="text-2xl md:text-3xl font-extrabold text-blue-600 flex items-center justify-center gap-1.5">
-                    <span class="text-lg md:text-xl">👥</span> {{ total_workers }}+
+            <div class="bg-white/75 backdrop-blur-md rounded-2xl p-5 text-center border border-[#ebdccb] shadow-sm hover:shadow-md transition-all">
+                <div class="text-2xl md:text-3xl font-extrabold text-slate-900 flex items-center justify-center gap-1.5">
+                    <span class="text-lg md:text-xl text-[#9c5120]">👤</span> {{ total_workers }}+
                 </div>
                 <div class="text-slate-600 text-xs md:text-sm font-medium mt-1">Registered Workers</div>
             </div>
 
             <!-- Stat 2 -->
-            <div class="bg-white/80 backdrop-blur-md rounded-2xl p-5 text-center border border-white shadow-sm hover:shadow-md transition-all">
-                <div class="text-2xl md:text-3xl font-extrabold text-emerald-600 flex items-center justify-center gap-1.5">
+            <div class="bg-white/75 backdrop-blur-md rounded-2xl p-5 text-center border border-[#ebdccb] shadow-sm hover:shadow-md transition-all">
+                <div class="text-2xl md:text-3xl font-extrabold text-slate-900 flex items-center justify-center gap-1.5">
                     <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> {{ available_workers }}
                 </div>
                 <div class="text-slate-600 text-xs md:text-sm font-medium mt-1">Available Now</div>
             </div>
 
             <!-- Stat 3 -->
-            <div class="bg-white/80 backdrop-blur-md rounded-2xl p-5 text-center border border-white shadow-sm hover:shadow-md transition-all">
-                <div class="text-2xl md:text-3xl font-extrabold text-blue-600 flex items-center justify-center gap-1.5">
-                    <span class="text-lg md:text-xl">⚡</span> {{ total_hires }}+
+            <div class="bg-white/75 backdrop-blur-md rounded-2xl p-5 text-center border border-[#ebdccb] shadow-sm hover:shadow-md transition-all">
+                <div class="text-2xl md:text-3xl font-extrabold text-slate-900 flex items-center justify-center gap-1.5">
+                    <span class="text-lg md:text-xl text-[#9c5120]">⚡</span> {{ total_hires }}+
                 </div>
                 <div class="text-slate-600 text-xs md:text-sm font-medium mt-1">Jobs Completed</div>
             </div>
 
             <!-- Stat 4 -->
-            <div class="bg-white/80 backdrop-blur-md rounded-2xl p-5 text-center border border-white shadow-sm hover:shadow-md transition-all">
-                <div class="text-2xl md:text-3xl font-extrabold text-blue-600 flex items-center justify-center gap-1.5">
-                    <span class="text-lg md:text-xl">🪙</span> {{ total_employers }}+
+            <div class="bg-white/75 backdrop-blur-md rounded-2xl p-5 text-center border border-[#ebdccb] shadow-sm hover:shadow-md transition-all">
+                <div class="text-2xl md:text-3xl font-extrabold text-slate-900 flex items-center justify-center gap-1.5">
+                    <span class="text-lg md:text-xl text-amber-500">🪙</span> {{ total_employers }}+
                 </div>
                 <div class="text-slate-600 text-xs md:text-sm font-medium mt-1">Happy Employers</div>
             </div>
@@ -121,7 +121,7 @@
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {% for value, label in skill_choices %}
             <a href="{% url 'search_workers' %}?skill={{ value }}"
-               class="group glass-card rounded-2xl p-6 text-center hover:border-blue-300 hover:bg-white hover:shadow-md transition-all duration-300 border border-white/90 worker-card">
+               class="group glass-card rounded-2xl p-6 text-center hover:border-[#dfc3a7] hover:bg-white hover:shadow-md transition-all duration-300 border border-[#ecdac7] worker-card">
                 <div class="text-4xl mb-3 group-hover:scale-110 transition-transform">
                     {% if value == 'ELECTRICIAN' %}⚡
                     {% elif value == 'PLUMBER' %}🔧
@@ -135,7 +135,7 @@
                     {% elif value == 'CLEANER' %}🧹
                     {% else %}👤{% endif %}
                 </div>
-                <div class="text-sm font-bold text-slate-800 group-hover:text-blue-600 transition-colors">{{ label }}</div>
+                <div class="text-sm font-bold text-slate-800 group-hover:text-[#9c5120] transition-colors">{{ label }}</div>
             </a>
             {% endfor %}
         </div>
@@ -143,7 +143,7 @@
 </section>
 
 <!-- How It Works -->
-<section class="py-20 px-6" style="background: rgba(225, 239, 254, 0.45);">
+<section class="py-20 px-6" style="background: rgba(248, 237, 223, 0.5);">
     <div class="max-w-7xl mx-auto">
         <div class="text-center mb-16">
             <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 mb-3 tracking-tight">How CivicPro Works</h2>
@@ -153,33 +153,33 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             <!-- Step 1 -->
             <div class="relative">
-                <div class="glass-card rounded-2xl p-8 border border-white/90 shadow-sm h-full bg-white/80">
-                    <div class="w-14 h-14 rounded-2xl bg-blue-100 border border-blue-200 flex items-center justify-center text-2xl mb-6 shadow-sm">🔍</div>
-                    <div class="text-blue-600 text-xs font-bold tracking-wider mb-2">STEP 1</div>
+                <div class="glass-card rounded-2xl p-8 border border-[#ecdac7] shadow-sm h-full bg-white/85">
+                    <div class="w-14 h-14 rounded-2xl bg-[#faefe3] border border-[#f0dfcc] flex items-center justify-center text-2xl mb-6 shadow-sm">🔍</div>
+                    <div class="text-[#9c5120] text-xs font-bold tracking-wider mb-2">STEP 1</div>
                     <h3 class="text-xl font-bold text-slate-900 mb-3">Search Nearby Workers</h3>
                     <p class="text-slate-600 text-sm leading-relaxed">Use our Haversine-powered distance filter to find skilled workers within 2–50 km of your location. Filter by skill and see results on an interactive map.</p>
                 </div>
                 <div class="hidden md:block absolute top-1/2 -right-4 transform -translate-y-1/2 z-10">
-                    <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white shadow-md text-sm font-bold">→</div>
+                    <div class="w-8 h-8 rounded-full bg-[#9c5120] flex items-center justify-center text-white shadow-md text-sm font-bold">→</div>
                 </div>
             </div>
 
             <!-- Step 2 -->
             <div class="relative">
-                <div class="glass-card rounded-2xl p-8 border border-white/90 shadow-sm h-full bg-white/80">
-                    <div class="w-14 h-14 rounded-2xl bg-purple-100 border border-purple-200 flex items-center justify-center text-2xl mb-6 shadow-sm">📋</div>
-                    <div class="text-purple-600 text-xs font-bold tracking-wider mb-2">STEP 2</div>
+                <div class="glass-card rounded-2xl p-8 border border-[#ecdac7] shadow-sm h-full bg-white/85">
+                    <div class="w-14 h-14 rounded-2xl bg-amber-100/70 border border-amber-200/80 flex items-center justify-center text-2xl mb-6 shadow-sm">📋</div>
+                    <div class="text-amber-800 text-xs font-bold tracking-wider mb-2">STEP 2</div>
                     <h3 class="text-xl font-bold text-slate-900 mb-3">Send Direct Hire Request</h3>
                     <p class="text-slate-600 text-sm leading-relaxed">View detailed worker profiles with ratings, experience, and daily rates. Send a direct hire request with job details — no agents, no commissions.</p>
                 </div>
                 <div class="hidden md:block absolute top-1/2 -right-4 transform -translate-y-1/2 z-10">
-                    <div class="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white shadow-md text-sm font-bold">→</div>
+                    <div class="w-8 h-8 rounded-full bg-[#9c5120] flex items-center justify-center text-white shadow-md text-sm font-bold">→</div>
                 </div>
             </div>
 
             <!-- Step 3 -->
             <div>
-                <div class="glass-card rounded-2xl p-8 border border-white/90 shadow-sm h-full bg-white/80">
+                <div class="glass-card rounded-2xl p-8 border border-[#ecdac7] shadow-sm h-full bg-white/85">
                     <div class="w-14 h-14 rounded-2xl bg-emerald-100 border border-emerald-200 flex items-center justify-center text-2xl mb-6 shadow-sm">⭐</div>
                     <div class="text-emerald-600 text-xs font-bold tracking-wider mb-2">STEP 3</div>
                     <h3 class="text-xl font-bold text-slate-900 mb-3">Work & Get Reviewed</h3>
@@ -194,8 +194,8 @@
 <section class="py-20 px-6">
     <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
         <!-- Worker Card -->
-        <div class="glass-card rounded-3xl p-8 border border-white/90 shadow-sm bg-white/85 relative overflow-hidden group hover:border-blue-300 hover:shadow-md transition-all duration-300">
-            <div class="absolute top-0 right-0 w-40 h-40 bg-blue-100 rounded-full blur-2xl group-hover:bg-blue-200 transition-all -z-10"></div>
+        <div class="glass-card rounded-3xl p-8 border border-[#ecdac7] shadow-sm bg-white/85 relative overflow-hidden group hover:border-[#dfc3a7] hover:shadow-md transition-all duration-300">
+            <div class="absolute top-0 right-0 w-40 h-40 bg-amber-100/60 rounded-full blur-2xl group-hover:bg-amber-200/60 transition-all -z-10"></div>
             <div class="text-5xl mb-4">👷</div>
             <h3 class="text-2xl font-bold text-slate-900 mb-3">Are You a Skilled Worker?</h3>
             <p class="text-slate-600 mb-6 leading-relaxed text-sm">Create your free profile, showcase your skills and experience, set your daily rate, and get hired directly by employers near you.</p>
@@ -205,13 +205,13 @@
                 <li class="flex items-center gap-2"><span class="text-emerald-600 font-bold">✓</span> Toggle availability instantly</li>
                 <li class="flex items-center gap-2"><span class="text-emerald-600 font-bold">✓</span> Build your review portfolio</li>
             </ul>
-            <a href="{% url 'register_worker' %}" class="block text-center px-6 py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl transition-all shadow-md shadow-blue-500/20">
+            <a href="{% url 'register_worker' %}" class="block text-center px-6 py-3.5 bg-[#9c5120] hover:bg-[#834017] text-white font-semibold rounded-xl transition-all shadow-md shadow-amber-950/20">
                 Join as Worker →
             </a>
         </div>
 
         <!-- Employer Card -->
-        <div class="glass-card rounded-3xl p-8 border border-white/90 shadow-sm bg-white/85 relative overflow-hidden group hover:border-emerald-300 hover:shadow-md transition-all duration-300">
+        <div class="glass-card rounded-3xl p-8 border border-[#ecdac7] shadow-sm bg-white/85 relative overflow-hidden group hover:border-emerald-300 hover:shadow-md transition-all duration-300">
             <div class="absolute top-0 right-0 w-40 h-40 bg-emerald-100 rounded-full blur-2xl group-hover:bg-emerald-200 transition-all -z-10"></div>
             <div class="text-5xl mb-4">🏠</div>
             <h3 class="text-2xl font-bold text-slate-900 mb-3">Need Work Done at Home?</h3>

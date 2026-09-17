@@ -247,23 +247,33 @@
             scrollWheelZoom: false
         }).setView([workerLat, workerLng], 14);
 
-        const tileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-            subdomains: 'abcd',
+        // Tile layer: Esri World Street Map (High reliability, No API key, No watermarks, No access blocks)
+        const tileLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, METI, TomTom',
             maxZoom: 19
         }).addTo(map);
 
-        tileLayer.on('tileerror', function(error, tile) {
-            if (tile && !tile._hasFallback) {
+        tileLayer.on('tileerror', function(e) {
+            const tile = e.tile;
+            if (tile && !tile._hasFallback && e.coords) {
                 tile._hasFallback = true;
-                const coords = error.coords;
-                tile.src = `https://tile.openstreetmap.org/${coords.z}/${coords.x}/${coords.y}.png`;
+                tile.src = `https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/${e.coords.z}/${e.coords.y}/${e.coords.x}`;
             }
         });
 
-        setTimeout(() => map.invalidateSize(), 150);
-        setTimeout(() => map.invalidateSize(), 500);
-        window.addEventListener('resize', () => map.invalidateSize());
+        function invalidateMapSize() {
+            if (map) map.invalidateSize();
+        }
+        setTimeout(invalidateMapSize, 100);
+        setTimeout(invalidateMapSize, 300);
+        setTimeout(invalidateMapSize, 600);
+        setTimeout(invalidateMapSize, 1200);
+        window.addEventListener('resize', invalidateMapSize);
+
+        const miniMapEl = document.getElementById('miniMap');
+        if (window.ResizeObserver && miniMapEl) {
+            new ResizeObserver(() => invalidateMapSize()).observe(miniMapEl);
+        }
 
         const icon = L.divIcon({
             html: `<div style="background:linear-gradient(135deg,#059669,#047857); width:36px; height:36px; border-radius:50% 50% 50% 0; transform:rotate(-45deg); border:3px solid white; box-shadow:0 4px 14px rgba(16,185,129,0.45); display:flex; align-items:center; justify-content:center;">

@@ -17,24 +17,50 @@
                 extend: {
                     colors: {
                         primary: {
-                            50: '#eff6ff',
-                            100: '#dbeafe',
-                            200: '#bfdbfe',
-                            400: '#60a5fa',
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            700: '#1d4ed8',
-                            900: '#1e3a8a',
+                            50: '#fdf8f4',
+                            100: '#faefe3',
+                            200: '#f5dcbf',
+                            300: '#ecc294',
+                            400: '#df9e5f',
+                            500: '#b45d24',
+                            600: '#9c5120',
+                            700: '#834017',
+                            800: '#6d3415',
+                            900: '#562a12',
+                        },
+                        blue: {
+                            50: '#fdf8f4',
+                            100: '#faefe3',
+                            200: '#f5dcbf',
+                            300: '#ecc294',
+                            400: '#df9e5f',
+                            500: '#b45d24',
+                            600: '#9c5120',
+                            700: '#834017',
+                            800: '#6d3415',
+                            900: '#562a12',
                         },
                         pastel: {
-                            50: '#f8fafc',
-                            100: '#f0f7ff',
-                            200: '#e0f0fe',
-                            300: '#cbe2f8',
-                            400: '#93c5fd',
-                            500: '#60a5fa',
-                            600: '#3b82f6',
-                            700: '#2563eb',
+                            50: '#fdfbf7',
+                            100: '#faf3eb',
+                            200: '#f5e6d6',
+                            300: '#ebd4be',
+                            400: '#dec0a2',
+                            500: '#cca580',
+                            600: '#b0845a',
+                            700: '#9c5120',
+                        },
+                        warm: {
+                            50: '#fdfbf7',
+                            100: '#fbf5ed',
+                            200: '#f5e8d8',
+                            300: '#ebd6c0',
+                            400: '#dcbe9f',
+                            500: '#c59f7b',
+                            600: '#9c5120',
+                            700: '#834017',
+                            800: '#423225',
+                            900: '#2c2118',
                         }
                     },
                     fontFamily: {
@@ -65,38 +91,53 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
-    <!-- Leaflet.js -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+    <!-- Leaflet.js CSS & JS (loaded in head so L is available everywhere) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script>
+        if (typeof L === 'undefined') {
+            document.write('<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>');
+            document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"><\/script>');
+        }
+        if (typeof L !== 'undefined') {
+            delete L.Icon.Default.prototype._getIconUrl;
+            L.Icon.Default.mergeOptions({
+                iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+                iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+                shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+            });
+        }
+    </script>
 
     <style>
         * { font-family: 'Inter', sans-serif; }
         body {
-            background-color: #ebf5fe;
+            background-color: #fcf8f3;
             color: #1e293b;
             background-image: 
-                radial-gradient(at 15% 15%, rgba(191, 219, 254, 0.45) 0, transparent 45%),
-                radial-gradient(at 85% 20%, rgba(224, 242, 254, 0.6) 0, transparent 50%),
-                radial-gradient(at 50% 85%, rgba(219, 234, 254, 0.5) 0, transparent 55%);
+                radial-gradient(at 15% 15%, rgba(246, 233, 217, 0.7) 0, transparent 45%),
+                radial-gradient(at 85% 20%, rgba(254, 244, 222, 0.5) 0, transparent 50%),
+                radial-gradient(at 50% 85%, rgba(248, 236, 222, 0.6) 0, transparent 55%);
             min-height: 100vh;
         }
 
         /* Custom scrollbar */
         ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #e2eafc; }
-        ::-webkit-scrollbar-thumb { background: #93c5fd; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #60a5fa; }
+        ::-webkit-scrollbar-track { background: #f5e8d8; }
+        ::-webkit-scrollbar-thumb { background: #d4b28f; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #9c5120; }
 
         /* Glassmorphism card */
         .glass-card {
-            background: rgba(255, 255, 255, 0.82);
+            background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.95);
-            box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.05), 0 8px 10px -6px rgba(37, 99, 235, 0.03);
+            border: 1px solid rgba(229, 214, 196, 0.75);
+            box-shadow: 0 10px 25px -5px rgba(156, 81, 32, 0.05), 0 8px 10px -6px rgba(156, 81, 32, 0.03);
         }
 
         /* Gradient text */
         .gradient-text {
-            background: linear-gradient(135deg, #1d4ed8, #2563eb, #3b82f6);
+            background: linear-gradient(135deg, #834017, #9c5120, #c57732);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -104,13 +145,13 @@
 
         /* Glow effect */
         .glow-blue {
-            box-shadow: 0 0 25px rgba(59, 130, 246, 0.25);
+            box-shadow: 0 0 25px rgba(156, 81, 32, 0.22);
         }
 
         /* Nav active */
         .nav-active {
-            background: rgba(37, 99, 235, 0.08);
-            color: #2563eb !important;
+            background: rgba(156, 81, 32, 0.08);
+            color: #9c5120 !important;
             font-weight: 600;
         }
 
@@ -120,11 +161,11 @@
         .badge-pending { background: rgba(245, 158, 11, 0.12); color: #b45309; border: 1px solid rgba(245, 158, 11, 0.25); }
         .badge-accepted { background: rgba(16, 185, 129, 0.12); color: #047857; border: 1px solid rgba(16, 185, 129, 0.25); }
         .badge-rejected { background: rgba(239, 68, 68, 0.12); color: #b91c1c; border: 1px solid rgba(239, 68, 68, 0.25); }
-        .badge-completed { background: rgba(37, 99, 235, 0.12); color: #1d4ed8; border: 1px solid rgba(37, 99, 235, 0.25); }
+        .badge-completed { background: rgba(156, 81, 32, 0.12); color: #9c5120; border: 1px solid rgba(156, 81, 32, 0.25); }
 
         /* Hover card */
         .worker-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
-        .worker-card:hover { transform: translateY(-4px); box-shadow: 0 20px 30px -10px rgba(37, 99, 235, 0.12); }
+        .worker-card:hover { transform: translateY(-4px); box-shadow: 0 20px 30px -10px rgba(156, 81, 32, 0.10); }
 
         /* Toggle switch */
         .toggle-switch {
@@ -167,21 +208,21 @@
             width: 100%;
             position: relative;
             border-radius: 16px;
-            border: 1px solid rgba(219, 234, 254, 0.8);
-            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.08);
+            border: 1px solid rgba(229, 214, 196, 0.85);
+            box-shadow: 0 4px 20px rgba(156, 81, 32, 0.08);
             z-index: 1;
         }
         #miniMap { min-height: 220px; height: 220px; width: 100%; z-index: 1; }
         #locationMap { min-height: 280px; height: 300px; width: 100%; z-index: 1; }
-        .leaflet-container { font-family: 'Inter', sans-serif !important; background: #e8f2fc !important; }
+        .leaflet-container { font-family: 'Inter', sans-serif !important; background: #fdf8f4 !important; }
 
         /* Leaflet popup custom */
         .leaflet-popup-content-wrapper {
             background: #ffffff !important;
             color: #1e293b !important;
-            border: 1px solid rgba(191, 219, 254, 0.9) !important;
+            border: 1px solid rgba(229, 214, 196, 0.9) !important;
             border-radius: 12px !important;
-            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.12) !important;
+            box-shadow: 0 10px 25px rgba(156, 81, 32, 0.12) !important;
         }
         .leaflet-popup-content {
             margin: 12px 14px !important;
@@ -209,7 +250,7 @@
             appearance: none;
             height: 6px;
             border-radius: 3px;
-            background: #cbd5e1;
+            background: #ebd8c2;
             outline: none;
         }
         input[type="range"]::-webkit-slider-thumb {
@@ -218,9 +259,9 @@
             width: 20px;
             height: 20px;
             border-radius: 50%;
-            background: #3b82f6;
+            background: #9c5120;
             cursor: pointer;
-            box-shadow: 0 0 8px rgba(59,130,246,0.3);
+            box-shadow: 0 0 8px rgba(156, 81, 32, 0.35);
         }
 
         /* Global pastel theme helpers */
@@ -234,37 +275,37 @@
             color: #0f172a;
         }
         .text-gray-400:not(button):not(a[class*="bg-"]):not(span[class*="bg-"]) {
-            color: #64748b;
+            color: #78716c;
         }
         .text-gray-300:not(button):not(a[class*="bg-"]):not(span[class*="bg-"]) {
-            color: #475569;
+            color: #57534e;
         }
         .text-gray-200:not(button):not(a[class*="bg-"]):not(span[class*="bg-"]) {
-            color: #334155;
+            color: #44403c;
         }
         .border-gray-700, .border-gray-700\/50, .border-gray-800 {
-            border-color: rgba(219, 234, 254, 0.8) !important;
+            border-color: rgba(229, 214, 196, 0.8) !important;
         }
         .border-gray-600 {
-            border-color: #cbd5e1 !important;
+            border-color: #d6c4b2 !important;
         }
         .bg-gray-800:not(button):not(a):not(input) {
             background-color: rgba(255, 255, 255, 0.85);
         }
         .bg-gray-900:not(button):not(a) {
-            background-color: rgba(240, 247, 255, 0.7);
+            background-color: rgba(251, 245, 237, 0.7);
         }
         .bg-gray-700:not(button):not(a) {
-            background-color: rgba(226, 238, 252, 0.6);
+            background-color: rgba(245, 233, 219, 0.6);
         }
         input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
         select, textarea {
             background-color: #ffffff !important;
-            border-color: #cbd5e1 !important;
+            border-color: #e2d5c3 !important;
             color: #0f172a !important;
         }
         input::placeholder, textarea::placeholder {
-            color: #94a3b8 !important;
+            color: #a89f91 !important;
         }
     </style>
 
@@ -273,13 +314,13 @@
 <body class="min-h-screen text-slate-800 antialiased">
 
     <!-- Navigation -->
-    <nav class="sticky top-0 z-50 border-b border-blue-100/80" style="background: rgba(255, 255, 255, 0.88); backdrop-filter: blur(16px); box-shadow: 0 2px 10px rgba(37, 99, 235, 0.04);">
+    <nav class="sticky top-0 z-50 border-b border-[#ebdccb]" style="background: rgba(253, 248, 244, 0.92); backdrop-filter: blur(16px); box-shadow: 0 2px 10px rgba(156, 81, 32, 0.04);">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
 
                 <!-- Logo -->
                 <a href="{% url 'home' %}" class="flex items-center gap-3 group">
-                    <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center shadow-md shadow-blue-500/20 group-hover:scale-105 transition-all overflow-hidden p-0.5">
+                    <div class="w-9 h-9 rounded-xl bg-[#9c5120] flex items-center justify-center shadow-md shadow-amber-950/20 group-hover:scale-105 transition-all overflow-hidden p-0.5">
                         <img src="{% static 'images/logo.png' %}" alt="CivicPro Logo" class="w-full h-full object-cover rounded-lg">
                     </div>
                     <span class="text-xl font-bold text-slate-800 tracking-tight">CivicPro</span>
@@ -287,17 +328,17 @@
 
                 <!-- Center Nav Links -->
                 <div class="hidden md:flex items-center gap-1">
-                    <a href="{% url 'home' %}" class="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-blue-600 hover:bg-blue-50/70 rounded-xl transition-all">Home</a>
+                    <a href="{% url 'home' %}" class="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-[#9c5120] hover:bg-[#faefe3]/70 rounded-xl transition-all">Home</a>
                     {% if user.is_authenticated %}
                         {% if user.profile.role == 'WORKER' %}
-                            <a href="{% url 'worker_dashboard' %}" class="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-blue-600 hover:bg-blue-50/70 rounded-xl transition-all">Dashboard</a>
-                            <a href="{% url 'worker_profile_setup' %}" class="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-blue-600 hover:bg-blue-50/70 rounded-xl transition-all">My Profile</a>
+                            <a href="{% url 'worker_dashboard' %}" class="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-[#9c5120] hover:bg-[#faefe3]/70 rounded-xl transition-all">Dashboard</a>
+                            <a href="{% url 'worker_profile_setup' %}" class="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-[#9c5120] hover:bg-[#faefe3]/70 rounded-xl transition-all">My Profile</a>
                         {% elif user.profile.role == 'EMPLOYER' %}
-                            <a href="{% url 'employer_dashboard' %}" class="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-blue-600 hover:bg-blue-50/70 rounded-xl transition-all">Dashboard</a>
-                            <a href="{% url 'search_workers' %}" class="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-blue-600 hover:bg-blue-50/70 rounded-xl transition-all">Find Workers</a>
+                            <a href="{% url 'employer_dashboard' %}" class="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-[#9c5120] hover:bg-[#faefe3]/70 rounded-xl transition-all">Dashboard</a>
+                            <a href="{% url 'search_workers' %}" class="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-[#9c5120] hover:bg-[#faefe3]/70 rounded-xl transition-all">Find Workers</a>
                         {% endif %}
                     {% else %}
-                        <a href="{% url 'search_workers' %}" class="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-blue-600 hover:bg-blue-50/70 rounded-xl transition-all">Find Workers</a>
+                        <a href="{% url 'search_workers' %}" class="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-[#9c5120] hover:bg-[#faefe3]/70 rounded-xl transition-all">Find Workers</a>
                     {% endif %}
                 </div>
 
@@ -306,36 +347,36 @@
                     {% if user.is_authenticated %}
                         <!-- User Menu -->
                         <div class="relative" id="userMenuContainer">
-                            <button id="userMenuBtn" class="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-white/90 border border-blue-100 hover:border-blue-300 shadow-sm transition-all">
+                            <button id="userMenuBtn" class="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-white/90 border border-[#ebdccb] hover:border-[#dfc3a7] shadow-sm transition-all">
                                 <div class="w-7 h-7 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-bold shadow-sm">
                                     {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
                                 </div>
                                 <span class="text-sm font-semibold text-slate-800 hidden sm:block">{{ user.first_name }}</span>
                                 <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                             </button>
-                            <div id="userMenu" class="hidden absolute right-0 mt-2 w-52 glass-card rounded-2xl shadow-xl border border-blue-100 overflow-hidden z-50 animate-slide-up">
-                                <div class="px-4 py-3 border-b border-blue-50 bg-blue-50/40">
+                            <div id="userMenu" class="hidden absolute right-0 mt-2 w-52 glass-card rounded-2xl shadow-xl border border-[#ebdccb] overflow-hidden z-50 animate-slide-up">
+                                <div class="px-4 py-3 border-b border-[#f3e6d6] bg-[#faefe3]/60">
                                     <p class="text-sm font-bold text-slate-900">{{ user.get_full_name }}</p>
                                     <p class="text-xs font-medium text-slate-500">{{ user.profile.get_role_display }}</p>
                                 </div>
                                 {% if user.profile.role == 'WORKER' %}
-                                    <a href="{% url 'worker_dashboard' %}" class="block px-4 py-2.5 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-600 transition-all font-medium">📊 Dashboard</a>
-                                    <a href="{% url 'worker_profile_setup' %}" class="block px-4 py-2.5 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-600 transition-all font-medium">✏️ Edit Profile</a>
+                                    <a href="{% url 'worker_dashboard' %}" class="block px-4 py-2.5 text-sm text-slate-700 hover:bg-[#faefe3] hover:text-[#9c5120] transition-all font-medium">📊 Dashboard</a>
+                                    <a href="{% url 'worker_profile_setup' %}" class="block px-4 py-2.5 text-sm text-slate-700 hover:bg-[#faefe3] hover:text-[#9c5120] transition-all font-medium">✏️ Edit Profile</a>
                                 {% elif user.profile.role == 'EMPLOYER' %}
-                                    <a href="{% url 'employer_dashboard' %}" class="block px-4 py-2.5 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-600 transition-all font-medium">📊 Dashboard</a>
-                                    <a href="{% url 'search_workers' %}" class="block px-4 py-2.5 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-600 transition-all font-medium">🔍 Find Workers</a>
+                                    <a href="{% url 'employer_dashboard' %}" class="block px-4 py-2.5 text-sm text-slate-700 hover:bg-[#faefe3] hover:text-[#9c5120] transition-all font-medium">📊 Dashboard</a>
+                                    <a href="{% url 'search_workers' %}" class="block px-4 py-2.5 text-sm text-slate-700 hover:bg-[#faefe3] hover:text-[#9c5120] transition-all font-medium">🔍 Find Workers</a>
                                 {% endif %}
                                 {% if user.is_superuser %}
-                                    <a href="/admin/" class="block px-4 py-2.5 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-600 transition-all font-medium">⚙️ Admin Panel</a>
+                                    <a href="/admin/" class="block px-4 py-2.5 text-sm text-slate-700 hover:bg-[#faefe3] hover:text-[#9c5120] transition-all font-medium">⚙️ Admin Panel</a>
                                 {% endif %}
-                                <div class="border-t border-blue-50">
+                                <div class="border-t border-[#f3e6d6]">
                                     <a href="{% url 'logout' %}" class="block px-4 py-2.5 text-sm text-rose-600 hover:bg-rose-50 transition-all font-medium">🚪 Logout</a>
                                 </div>
                             </div>
                         </div>
                     {% else %}
-                        <a href="{% url 'login' %}" class="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-blue-600 transition-all">Login</a>
-                        <a href="{% url 'register_worker' %}" class="px-4 py-2 text-sm font-semibold bg-blue-600 hover:bg-blue-500 text-white rounded-xl transition-all shadow-md shadow-blue-500/20">Get Started</a>
+                        <a href="{% url 'login' %}" class="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-[#9c5120] transition-all">Login</a>
+                        <a href="{% url 'register_worker' %}" class="px-4 py-2 text-sm font-semibold bg-[#9c5120] hover:bg-[#834017] text-white rounded-xl transition-all shadow-md shadow-amber-950/20">Get Started</a>
                     {% endif %}
                 </div>
             </div>
@@ -367,12 +408,12 @@
     </main>
 
     <!-- Footer -->
-    <footer class="border-t border-blue-200/70 mt-20" style="background: rgba(228, 239, 252, 0.7); backdrop-filter: blur(8px);">
+    <footer class="border-t border-[#ebdccb] mt-20" style="background: rgba(249, 240, 229, 0.8); backdrop-filter: blur(8px);">
         <div class="max-w-7xl mx-auto px-6 py-12">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                 <div class="md:col-span-2">
                     <div class="flex items-center gap-3 mb-4">
-                        <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center shadow-md shadow-blue-500/20 overflow-hidden p-0.5">
+                        <div class="w-9 h-9 rounded-xl bg-[#9c5120] flex items-center justify-center shadow-md shadow-amber-950/20 overflow-hidden p-0.5">
                             <img src="{% static 'images/logo.png' %}" alt="CivicPro Logo" class="w-full h-full object-cover rounded-lg">
                         </div>
                         <span class="text-xl font-bold text-slate-800">CivicPro</span>
@@ -381,29 +422,29 @@
                         Connecting skilled daily-wage workers directly with employers. No middlemen, fair pay, transparent hiring.
                     </p>
                     <div class="flex gap-3 mt-4">
-                        <span class="px-3 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-700 border border-blue-200">🏗️ Construction</span>
-                        <span class="px-3 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-700 border border-purple-200">⚡ Electrical</span>
+                        <span class="px-3 py-1 text-xs font-semibold rounded-full bg-[#faefe3] text-[#9c5120] border border-[#ebdccb]">🏗️ Construction</span>
+                        <span class="px-3 py-1 text-xs font-semibold rounded-full bg-amber-100 text-amber-800 border border-amber-200">⚡ Electrical</span>
                         <span class="px-3 py-1 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200">🔧 Plumbing</span>
                     </div>
                 </div>
                 <div>
                     <h4 class="text-sm font-bold text-slate-800 mb-3">For Workers</h4>
                     <ul class="space-y-2 text-sm text-slate-600 font-medium">
-                        <li><a href="{% url 'register_worker' %}" class="hover:text-blue-600 transition-colors">Create Profile</a></li>
-                        <li><a href="{% url 'worker_dashboard' %}" class="hover:text-blue-600 transition-colors">Worker Dashboard</a></li>
-                        <li><a href="#" class="hover:text-blue-600 transition-colors">How it Works</a></li>
+                        <li><a href="{% url 'register_worker' %}" class="hover:text-[#9c5120] transition-colors">Create Profile</a></li>
+                        <li><a href="{% url 'worker_dashboard' %}" class="hover:text-[#9c5120] transition-colors">Worker Dashboard</a></li>
+                        <li><a href="#" class="hover:text-[#9c5120] transition-colors">How it Works</a></li>
                     </ul>
                 </div>
                 <div>
                     <h4 class="text-sm font-bold text-slate-800 mb-3">For Employers</h4>
                     <ul class="space-y-2 text-sm text-slate-600 font-medium">
-                        <li><a href="{% url 'register_employer' %}" class="hover:text-blue-600 transition-colors">Post a Job</a></li>
-                        <li><a href="{% url 'search_workers' %}" class="hover:text-blue-600 transition-colors">Find Workers</a></li>
-                        <li><a href="{% url 'employer_dashboard' %}" class="hover:text-blue-600 transition-colors">My Hires</a></li>
+                        <li><a href="{% url 'register_employer' %}" class="hover:text-[#9c5120] transition-colors">Post a Job</a></li>
+                        <li><a href="{% url 'search_workers' %}" class="hover:text-[#9c5120] transition-colors">Find Workers</a></li>
+                        <li><a href="{% url 'employer_dashboard' %}" class="hover:text-[#9c5120] transition-colors">My Hires</a></li>
                     </ul>
                 </div>
             </div>
-            <div class="border-t border-blue-200/70 mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="border-t border-[#ebdccb] mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <p class="text-xs text-slate-500 font-medium">© 2024 CivicPro. Built with Django + Leaflet.js</p>
                 <div class="flex items-center gap-2 text-xs text-slate-600 font-medium">
                     <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -413,24 +454,6 @@
         </div>
     </footer>
 
-    <!-- Leaflet.js Script with fallback -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-    <script>
-        if (typeof L === 'undefined') {
-            document.write('<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"><\/script>');
-        }
-    </script>
-    <script>
-        // Ensure Leaflet default icons resolve correctly across CDNs
-        if (typeof L !== 'undefined') {
-            delete L.Icon.Default.prototype._getIconUrl;
-            L.Icon.Default.mergeOptions({
-                iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
-                iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
-            });
-        }
-    </script>
 
     <script>
         // User Menu Dropdown

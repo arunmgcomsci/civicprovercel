@@ -6,15 +6,15 @@
 <div class="min-h-screen flex items-center justify-center px-4 py-20">
     <!-- Background soft blobs -->
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute top-1/3 left-1/4 w-96 h-96 bg-blue-200/40 rounded-full blur-3xl"></div>
-        <div class="absolute bottom-1/3 right-1/4 w-80 h-80 bg-indigo-200/30 rounded-full blur-3xl"></div>
+        <div class="absolute top-1/3 left-1/4 w-96 h-96 bg-amber-200/40 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-1/3 right-1/4 w-80 h-80 bg-orange-200/30 rounded-full blur-3xl"></div>
     </div>
 
     <div class="relative w-full max-w-md">
         <!-- Logo Header -->
         <div class="text-center mb-8">
             <div class="inline-flex items-center gap-3 mb-4">
-                <div class="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/25 overflow-hidden p-0.5">
+                <div class="w-12 h-12 rounded-2xl bg-[#9c5120] flex items-center justify-center shadow-lg shadow-amber-950/20 overflow-hidden p-0.5">
                     <img src="{% static 'images/logo.png' %}" alt="CivicPro Logo" class="w-full h-full object-cover rounded-xl">
                 </div>
                 <span class="text-2xl font-extrabold text-slate-900 tracking-tight">CivicPro</span>
@@ -27,11 +27,14 @@
         <div class="glass-card rounded-3xl p-8 border border-white/95 shadow-xl bg-white/85">
             <form method="post" class="space-y-5">
                 {% csrf_token %}
+                {% if request.GET.next %}
+                <input type="hidden" name="next" value="{{ request.GET.next }}">
+                {% endif %}
 
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Username</label>
                     <input type="text" name="username" id="id_username" required
-                           class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-sm"
+                           class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#9c5120] focus:ring-2 focus:ring-amber-100 transition-all text-sm"
                            placeholder="Enter your username">
                 </div>
 
@@ -39,7 +42,7 @@
                     <label class="block text-sm font-semibold text-slate-700 mb-2">Password</label>
                     <div class="relative">
                         <input type="password" name="password" id="id_password" required
-                               class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-sm"
+                               class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#9c5120] focus:ring-2 focus:ring-amber-100 transition-all text-sm"
                                placeholder="Enter your password">
                         <button type="button" id="togglePwd"
                                 class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition-colors">
@@ -49,7 +52,7 @@
                 </div>
 
                 <button type="submit"
-                        class="w-full py-3.5 px-4 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl transition-all shadow-md shadow-blue-500/20 text-sm">
+                        class="w-full py-3.5 px-4 bg-[#9c5120] hover:bg-[#834017] text-white font-semibold rounded-xl transition-all shadow-md shadow-amber-950/20 text-sm">
                     Sign In →
                 </button>
             </form>
@@ -57,7 +60,7 @@
             <div class="mt-6 text-center space-y-2 pt-2 border-t border-slate-100">
                 <p class="text-slate-600 text-sm font-medium">
                     New worker?
-                    <a href="{% url 'register_worker' %}" class="text-blue-600 hover:text-blue-700 font-bold transition-colors">Register here</a>
+                    <a href="{% url 'register_worker' %}" class="text-[#9c5120] hover:text-[#834017] font-bold transition-colors">Register here</a>
                 </p>
                 <p class="text-slate-600 text-sm font-medium">
                     Looking to hire?

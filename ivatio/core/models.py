@@ -29,13 +29,55 @@ def geocode_location(location_name):
         print(f"Geocoding error: {e}")
 
     # Fallbacks based on common search keywords
-    loc_lower = location_name.lower()
-    if 'kochi' in loc_lower or 'cochin' in loc_lower:
-        return 9.9592, 76.3243
+    loc_lower = location_name.lower().strip()
+    if 'kochi' in loc_lower or 'cochin' in loc_lower or 'ernakulam' in loc_lower:
+        return 9.9816, 76.2999
+    if 'thrissur' in loc_lower or 'trichur' in loc_lower:
+        return 10.5276, 76.2144
+    if 'shornur' in loc_lower or 'shoranur' in loc_lower:
+        return 10.7621, 76.2796
     if 'palakkad' in loc_lower:
-        return 10.7699, 76.6496
+        return 10.7867, 76.6548
+    if 'calicut' in loc_lower or 'kozhikode' in loc_lower:
+        return 11.2588, 75.7804
+    if 'trivandrum' in loc_lower or 'thiruvananthapuram' in loc_lower:
+        return 8.5241, 76.9366
+    if 'kollam' in loc_lower or 'quilon' in loc_lower:
+        return 8.8932, 76.6141
+    if 'alappuzha' in loc_lower or 'alleppey' in loc_lower:
+        return 9.4981, 76.3388
+    if 'kottayam' in loc_lower:
+        return 9.5916, 76.5222
+    if 'kannur' in loc_lower:
+        return 11.8745, 75.3704
+    if 'malappuram' in loc_lower:
+        return 11.0510, 76.0711
+    if 'wayanad' in loc_lower or 'kalpetta' in loc_lower:
+        return 11.6050, 76.0828
+    if 'kasaragod' in loc_lower:
+        return 12.4996, 74.9869
     if 'bangalore' in loc_lower or 'bengaluru' in loc_lower:
         return 12.9716, 77.5946
+    if 'koramangala' in loc_lower:
+        return 12.9352, 77.6245
+    if 'indiranagar' in loc_lower:
+        return 12.9784, 77.6408
+    if 'whitefield' in loc_lower:
+        return 12.9698, 77.7499
+    if 'hsr' in loc_lower:
+        return 12.9116, 77.6474
+    if 'chennai' in loc_lower or 'madras' in loc_lower:
+        return 13.0827, 80.2707
+    if 'mumbai' in loc_lower or 'bombay' in loc_lower:
+        return 19.0760, 72.8777
+    if 'delhi' in loc_lower:
+        return 28.6139, 77.2090
+    if 'hyderabad' in loc_lower:
+        return 17.3850, 78.4867
+    if 'pune' in loc_lower:
+        return 18.5204, 73.8567
+    if 'kolkata' in loc_lower or 'calcutta' in loc_lower:
+        return 22.5726, 88.3639
 
     return None, None
 

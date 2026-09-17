@@ -16,7 +16,7 @@ from django.views.decorators.http import require_POST
 from django.db.models import Avg, Count
 from django.utils import timezone
 
-from .models import UserProfile, HireRequest, Review, WorkerAvailabilityLog, EmergencyCall
+from .models import UserProfile, HireRequest, Review, WorkerAvailabilityLog, EmergencyCall, geocode_location
 from .forms import (
     WorkerRegistrationForm, EmployerRegistrationForm,
     WorkerProfileForm, HireRequestForm, ReviewForm, WorkerSearchForm
@@ -181,7 +181,7 @@ def login_view(request):
         if user is not None:
             login(request, user)
             messages.success(request, f"Welcome back, {user.first_name or user.username}!")
-            next_url = request.GET.get('next', 'home')
+            next_url = request.POST.get('next') or request.GET.get('next') or 'home'
             return redirect(next_url)
         else:
             messages.error(request, "Invalid username or password. Please try again.")
@@ -346,6 +346,7 @@ def employer_dashboard(request):
     return render(request, 'employer_dashboard.html', context)
 
 
+@login_required
 def search_workers(request):
     """
     Main worker search page with Haversine-based proximity sorting.
@@ -360,6 +361,8 @@ def search_workers(request):
 
     form = WorkerSearchForm(request.GET)
 
+    location_query = request.GET.get('location', '').strip()
+
     # Determine default location based on user profile if available, else Bangalore
     default_lat = 12.9716
     default_lng = 77.5946
@@ -373,6 +376,21 @@ def search_workers(request):
     except (ValueError, TypeError):
         user_lat = default_lat
         user_lng = default_lng
+
+    # If location text query was provided, geocode it
+    if location_query:
+        g_lat, g_lng = geocode_location(location_query)
+        if g_lat is not None and g_lng is not None:
+            user_lat = g_lat
+            user_lng = g_lng
+
+    # Text display for the location search input
+    if location_query:
+        location_display = location_query
+    elif profile and profile.location_name:
+        location_display = profile.location_name
+    else:
+        location_display = f"{user_lat:.4f}, {user_lng:.4f}"
 
     try:
         radius = int(request.GET.get('radius', 10))
@@ -397,8 +415,8 @@ def search_workers(request):
             'location': w.location_name,
             'distance': item['distance'],
             'rating': w.avg_rating(),
-            'lat': w.latitude,
-            'lng': w.longitude,
+            'lat': float(w.latitude) if w.latitude is not None else None,
+            'lng': float(w.longitude) if w.longitude is not None else None,
             'is_verified': w.is_verified,
             'url': f"/worker/{w.id}/",
         })
@@ -411,6 +429,7 @@ def search_workers(request):
         'user_lng': user_lng,
         'radius': radius,
         'skill': skill,
+        'location_display': location_display,
         'skill_choices': UserProfile.SKILL_CHOICES,
         'radius_options': [2, 5, 10, 25, 50, 100],
         'total_found': len(workers_data),
@@ -418,6 +437,7 @@ def search_workers(request):
     return render(request, 'employer_search_directory.html', context)
 
 
+@login_required
 def worker_detail(request, pk):
     """Full worker profile detail page"""
     worker = get_object_or_404(UserProfile, pk=pk, role='WORKER')
@@ -532,6 +552,7 @@ def mark_hire_completed(request, pk):
 #  API ENDPOINTS (for AJAX)
 # ─────────────────────────────────────────────
 
+@login_required
 def api_workers_nearby(request):
     """
     JSON API: Returns nearby workers for Leaflet map.
@@ -567,6 +588,21 @@ def api_workers_nearby(request):
         })
 
     return JsonResponse({'workers': result, 'count': len(result)})
+
+
+def api_geocode(request):
+    """
+    JSON API: Geocode a query string (city or locality) to latitude and longitude.
+    Query param: q
+    """
+    query = request.GET.get('q', '').strip()
+    if not query:
+        return JsonResponse({'status': 'error', 'message': 'No search query provided'}, status=400)
+
+    lat, lng = geocode_location(query)
+    if lat is not None and lng is not None:
+        return JsonResponse({'status': 'ok', 'lat': lat, 'lng': lng, 'query': query})
+    return JsonResponse({'status': 'not_found', 'message': f'Could not find coordinates for "{query}"'}, status=404)
 
 
 @login_required

@@ -40,5 +40,6 @@ urlpatterns = [
 
     # API
     path('api/workers/', views.api_workers_nearby, name='api_workers_nearby'),
+    path('api/geocode/', views.api_geocode, name='api_geocode'),
 ]
 
