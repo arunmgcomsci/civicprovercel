@@ -7,6 +7,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from .models import UserProfile, HireRequest, Review, WorkerAvailabilityLog
 
 
@@ -36,11 +37,15 @@ class CustomUserAdmin(UserAdmin):
     def get_role(self, obj):
         try:
             role = obj.profile.role
-            colors = {'WORKER': 'blue', 'EMPLOYER': 'green', 'ADMIN': 'red'}
-            color = colors.get(role, 'gray')
+            styles = {
+                'WORKER': 'background:#faefe3; color:#9c5120; border:1px solid #ebdccb;',
+                'EMPLOYER': 'background:#f5dcbf; color:#562a12; border:1px solid #dfc3a7;',
+                'ADMIN': 'background:#562a12; color:#ffffff; border:1px solid #421d0a;',
+            }
+            style = styles.get(role, 'background:#f5f5f4; color:#57534e; border:1px solid #e7e5e4;')
             return format_html(
-                '<span style="background:{}; color:white; padding:2px 8px; border-radius:10px; font-size:11px;">{}</span>',
-                color, role
+                '<span style="{}; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:700; display:inline-block;">{}</span>',
+                style, role
             )
         except UserProfile.DoesNotExist:
             return 'N/A'
@@ -90,14 +95,14 @@ class UserProfileAdmin(admin.ModelAdmin):
 
     def availability_badge(self, obj):
         if obj.is_available:
-            return format_html('<span style="background:#22c55e; color:white; padding:2px 8px; border-radius:10px; font-size:11px;">✓ Available</span>')
-        return format_html('<span style="background:#ef4444; color:white; padding:2px 8px; border-radius:10px; font-size:11px;">✗ Busy</span>')
+            return mark_safe('<span style="background:#ecfdf5; color:#059669; border:1px solid #a7f3d0; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:700;">✓ Available</span>')
+        return mark_safe('<span style="background:#fef2f2; color:#dc2626; border:1px solid #fecaca; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:700;">✗ Busy</span>')
     availability_badge.short_description = 'Status'
 
     def verified_badge(self, obj):
         if obj.is_verified:
-            return format_html('<span style="background:#3b82f6; color:white; padding:2px 8px; border-radius:10px; font-size:11px;">✓ Verified</span>')
-        return format_html('<span style="background:#6b7280; color:white; padding:2px 8px; border-radius:10px; font-size:11px;">Pending</span>')
+            return mark_safe('<span style="background:#faefe3; color:#9c5120; border:1px solid #ebdccb; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:700;">✓ Verified</span>')
+        return mark_safe('<span style="background:#f5f5f4; color:#785e4f; border:1px solid #e7e5e4; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:500;">Pending</span>')
     verified_badge.short_description = 'Verification'
 
     def verify_workers(self, request, queryset):
@@ -134,16 +139,16 @@ class HireRequestAdmin(admin.ModelAdmin):
     get_worker_name.short_description = 'Worker'
 
     def status_badge(self, obj):
-        colors = {
-            'PENDING': '#f59e0b',
-            'ACCEPTED': '#22c55e',
-            'REJECTED': '#ef4444',
-            'COMPLETED': '#3b82f6',
+        badges = {
+            'PENDING': 'background:#fffbeb; color:#b45309; border:1px solid #fde68a;',
+            'ACCEPTED': 'background:#ecfdf5; color:#059669; border:1px solid #a7f3d0;',
+            'REJECTED': 'background:#fef2f2; color:#dc2626; border:1px solid #fecaca;',
+            'COMPLETED': 'background:#faefe3; color:#9c5120; border:1px solid #ebdccb;',
         }
-        color = colors.get(obj.status, '#6b7280')
+        style = badges.get(obj.status, 'background:#f5f5f4; color:#57534e; border:1px solid #e7e5e4;')
         return format_html(
-            '<span style="background:{}; color:white; padding:2px 8px; border-radius:10px; font-size:11px;">{}</span>',
-            color, obj.status
+            '<span style="{}; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:700;">{}</span>',
+            style, obj.status
         )
     status_badge.short_description = 'Status'
 

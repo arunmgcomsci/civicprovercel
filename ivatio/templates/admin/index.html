@@ -1,0 +1,76 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static "admin/css/dashboard.css" %}">{% endblock %}
+
+{% block coltype %}colMS{% endblock %}
+
+{% block bodyclass %}{{ block.super }} dashboard{% endblock %}
+
+{% block nav-breadcrumbs %}{% endblock %}
+
+{% block nav-sidebar %}{% endblock %}
+
+{% block content %}
+<div class="admin-hero-banner" style="margin-bottom: 24px; padding: 26px 30px; background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(253,248,244,0.92)); border: 1px solid #ebdccb; border-radius: 20px; box-shadow: 0 10px 30px -5px rgba(156,81,32,0.07); backdrop-filter: blur(16px); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+    <div style="max-width: 600px;">
+        <div style="display: inline-flex; align-items: center; gap: 6px; padding: 5px 14px; background: #faefe3; border: 1px solid #ebdccb; border-radius: 9999px; font-size: 11px; font-weight: 800; color: #9c5120; margin-bottom: 10px; letter-spacing: 0.04em; text-transform: uppercase;">
+            <span>⚡</span> CivicPro Operations Control
+        </div>
+        <h1 style="margin: 0; font-size: 24px; font-weight: 800; color: #431f0c; letter-spacing: -0.025em; line-height: 1.2;">
+            Platform Administration Hub
+        </h1>
+        <p style="margin: 8px 0 0 0; font-size: 13.5px; color: #785e4f; font-weight: 500; line-height: 1.5;">
+            Manage verified daily-wage workers, employer job postings, real-time emergency safety calls, and service reviews.
+        </p>
+    </div>
+    <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+        <a href="/" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; background: #faefe3; border: 1px solid #dfc3a7; border-radius: 12px; font-size: 13px; font-weight: 700; color: #9c5120; text-decoration: none; transition: all 0.2s; box-shadow: 0 2px 6px rgba(156,81,32,0.06);">
+            <span>🌐</span> View Public Site ↗
+        </a>
+        <a href="/search/" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; background: linear-gradient(135deg, #9c5120, #834017); border: none; border-radius: 12px; font-size: 13px; font-weight: 700; color: #ffffff; text-decoration: none; box-shadow: 0 4px 14px rgba(156,81,32,0.3); transition: all 0.2s;">
+            <span>🗺️</span> Worker Search Map ↗
+        </a>
+        <a href="/emergency/" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; font-size: 13px; font-weight: 700; color: #dc2626; text-decoration: none; transition: all 0.2s;">
+            <span>🚨</span> Emergency Monitor ↗
+        </a>
+    </div>
+</div>
+
+<div id="content-main" class="app-list">
+  {% include "admin/app_list.html" with app_list=app_list show_changelinks=True %}
+</div>
+{% endblock %}
+
+{% block sidebar %}
+<div id="content-related">
+    <div class="module" id="recent-actions-module">
+        <h2>{% translate 'Recent actions' %}</h2>
+        <h3>{% translate 'My actions' %}</h3>
+            {% load log %}
+            {% get_admin_log 10 as admin_log for_user user %}
+            {% if not admin_log %}
+            <p>{% translate 'None available' %}</p>
+            {% else %}
+            <ul class="actionlist">
+            {% for entry in admin_log %}
+            <li class="{% if entry.is_addition %}addlink{% endif %}{% if entry.is_change %}changelink{% endif %}{% if entry.is_deletion %}deletelink{% endif %}">
+                <span class="visually-hidden">{% filter capfirst %}{% if entry.is_addition %}{% translate 'Added:' %}{% elif entry.is_change %}{% translate 'Changed:' %}{% elif entry.is_deletion %}{% translate 'Deleted:' %}{% endif %}{% endfilter %}</span>
+                {% if entry.is_deletion or not entry.get_admin_url %}
+                    {{ entry.object_repr }}
+                {% else %}
+                    <a href="{{ entry.get_admin_url }}">{{ entry.object_repr }}</a>
+                {% endif %}
+                <br>
+                {% if entry.content_type %}
+                    <span class="mini quiet">{% filter capfirst %}{{ entry.content_type.name }}{% endfilter %}</span>
+                {% else %}
+                    <span class="mini quiet">{% translate 'Unknown content' %}</span>
+                {% endif %}
+            </li>
+            {% endfor %}
+            </ul>
+            {% endif %}
+    </div>
+</div>
+{% endblock %}
