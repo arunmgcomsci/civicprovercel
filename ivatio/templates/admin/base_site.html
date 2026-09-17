@@ -16,4 +16,292 @@
     {{ block.super }}
     <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}">
     <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #9c5120;
+            --secondary: #834017;
+            --accent: #df9e5f;
+            --primary-fg: #ffffff;
+            
+            --body-fg: #2c2118;
+            --body-bg: #fcf8f3;
+            --body-quiet-color: #785e4f;
+            --body-loud-color: #1a120c;
+            
+            --header-color: #ffffff;
+            --header-bg: #562a12;
+            --header-branding-color: #ffffff;
+            --header-link-color: #f5dcbf;
+            
+            --breadcrumbs-fg: #f5dcbf;
+            --breadcrumbs-link-fg: #ffffff;
+            --breadcrumbs-bg: #6d3415;
+            
+            --link-fg: #9c5120;
+            --link-hover-color: #6d3415;
+            --link-selected-fg: #562a12;
+            
+            --hairline-color: #ebdccb;
+            --border-color: #dfc3a7;
+            
+            --selected-bg: #faefe3;
+            --selected-row: #fdf5ec;
+            
+            --button-fg: #ffffff;
+            --button-bg: #9c5120;
+            --button-hover-bg: #834017;
+            
+            --default-button-bg: #9c5120;
+            --default-button-hover-bg: #834017;
+            --close-button-bg: #834017;
+            --close-button-hover-bg: #6d3415;
+            
+            --delete-button-bg: #dc2626;
+            --delete-button-hover-bg: #b91c1c;
+            
+            --message-success-bg: #ecfdf5;
+            --message-warning-bg: #fffbeb;
+            --message-error-bg: #fef2f2;
+            
+            --darkened-bg: #f5e8d8;
+        }
+
+        * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+        }
+
+        body {
+            background-color: #fcf8f3 !important;
+            color: #2c2118 !important;
+            background-image: 
+                radial-gradient(at 15% 15%, rgba(246, 233, 217, 0.6) 0, transparent 45%),
+                radial-gradient(at 85% 20%, rgba(254, 244, 222, 0.5) 0, transparent 50%),
+                radial-gradient(at 50% 85%, rgba(248, 236, 222, 0.5) 0, transparent 55%) !important;
+            min-height: 100vh;
+        }
+
+        /* Top Header */
+        #header {
+            background: linear-gradient(135deg, #562a12 0%, #834017 60%, #9c5120 100%) !important;
+            border-bottom: 1px solid rgba(223, 158, 95, 0.35) !important;
+            box-shadow: 0 4px 20px -2px rgba(86, 42, 18, 0.3) !important;
+            padding: 12px 24px !important;
+        }
+
+        #header a:link, #header a:visited {
+            color: #ffffff !important;
+        }
+
+        #user-tools {
+            font-size: 13px !important;
+            font-weight: 500 !important;
+        }
+
+        #user-tools a {
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.4) !important;
+            transition: all 0.2s !important;
+        }
+
+        #user-tools a:hover {
+            border-bottom-color: #ffffff !important;
+            color: #f5dcbf !important;
+        }
+
+        /* Breadcrumbs */
+        div.breadcrumbs {
+            background: #6d3415 !important;
+            border-bottom: 1px solid #834017 !important;
+            padding: 10px 24px !important;
+            font-size: 13px !important;
+            font-weight: 500 !important;
+            color: #f5dcbf !important;
+        }
+
+        div.breadcrumbs a {
+            color: #ffffff !important;
+            text-decoration: none !important;
+            font-weight: 600 !important;
+        }
+
+        div.breadcrumbs a:hover {
+            color: #f5dcbf !important;
+            text-decoration: underline !important;
+        }
+
+        /* Navigation Sidebar */
+        #nav-sidebar {
+            background: #fbf5ed !important;
+            border-right: 1px solid #ebdccb !important;
+        }
+
+        #nav-sidebar .module th {
+            background: #f5e8d8 !important;
+            color: #6d3415 !important;
+            font-weight: 700 !important;
+        }
+
+        #nav-sidebar .current-app .section:link, #nav-sidebar .current-app .section:visited {
+            color: #9c5120 !important;
+            font-weight: 700 !important;
+        }
+
+        #nav-sidebar .current-model {
+            background: #faefe3 !important;
+        }
+
+        /* Cards & Modules */
+        .module {
+            background: #ffffff !important;
+            border: 1px solid #ebdccb !important;
+            border-radius: 14px !important;
+            box-shadow: 0 4px 16px -2px rgba(156, 81, 32, 0.06) !important;
+            overflow: hidden;
+            margin-bottom: 24px !important;
+        }
+
+        .module h2, .module caption {
+            background: #fdf8f4 !important;
+            color: #834017 !important;
+            font-size: 14px !important;
+            font-weight: 700 !important;
+            border-bottom: 1px solid #ebdccb !important;
+            padding: 12px 18px !important;
+        }
+
+        /* Table Styling */
+        #changelist table {
+            border: 1px solid #ebdccb !important;
+            border-radius: 12px !important;
+            overflow: hidden !important;
+            background: #ffffff !important;
+        }
+
+        #changelist table thead th {
+            background: #fdf8f4 !important;
+            color: #6d3415 !important;
+            font-size: 12px !important;
+            font-weight: 700 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.05em !important;
+            border-bottom: 2px solid #ebdccb !important;
+            padding: 12px 14px !important;
+        }
+
+        #changelist table tbody tr {
+            transition: background 0.15s ease !important;
+        }
+
+        #changelist table tbody tr:hover {
+            background: #fbf5ed !important;
+        }
+
+        #changelist table tbody td, #changelist table tbody th {
+            border-bottom: 1px solid #f5e8d8 !important;
+            padding: 12px 14px !important;
+            font-size: 13px !important;
+        }
+
+        /* Buttons & Controls */
+        .button, input[type=submit], input[type=button], .submit-row input, a.button {
+            background: #9c5120 !important;
+            color: #ffffff !important;
+            border: none !important;
+            border-radius: 10px !important;
+            padding: 8px 18px !important;
+            font-size: 13px !important;
+            font-weight: 600 !important;
+            box-shadow: 0 3px 10px rgba(156, 81, 32, 0.25) !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+            text-decoration: none !important;
+            display: inline-block !important;
+        }
+
+        .button:hover, input[type=submit]:hover, input[type=button]:hover, .submit-row input:hover, a.button:hover {
+            background: #834017 !important;
+            box-shadow: 0 5px 14px rgba(156, 81, 32, 0.35) !important;
+            transform: translateY(-1px) !important;
+        }
+
+        .button.default, input[type=submit].default, .submit-row input.default {
+            background: #9c5120 !important;
+        }
+
+        .button.default:hover, input[type=submit].default:hover, .submit-row input.default:hover {
+            background: #834017 !important;
+        }
+
+        /* Inputs & Form Fields */
+        input[type=text], input[type=password], input[type=email], input[type=url], input[type=number], select, textarea {
+            border: 1px solid #ebdccb !important;
+            border-radius: 9px !important;
+            padding: 8px 12px !important;
+            background: #ffffff !important;
+            font-size: 13px !important;
+            color: #2c2118 !important;
+            transition: border-color 0.2s, box-shadow 0.2s !important;
+        }
+
+        input[type=text]:focus, input[type=password]:focus, input[type=email]:focus, input[type=url]:focus, input[type=number]:focus, select:focus, textarea:focus {
+            border-color: #9c5120 !important;
+            outline: none !important;
+            box-shadow: 0 0 0 3px rgba(156, 81, 32, 0.15) !important;
+        }
+
+        /* Filter Sidebar */
+        #changelist-filter {
+            background: #fdfbf7 !important;
+            border-left: 1px solid #ebdccb !important;
+        }
+
+        #changelist-filter h2 {
+            background: #f5e8d8 !important;
+            color: #6d3415 !important;
+            font-weight: 700 !important;
+            border-bottom: 1px solid #ebdccb !important;
+        }
+
+        #changelist-filter li.selected a {
+            color: #9c5120 !important;
+            font-weight: 700 !important;
+        }
+
+        /* Login page styling */
+        body.login {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            min-height: 100vh !important;
+        }
+
+        body.login #container {
+            width: 100% !important;
+            max-width: 440px !important;
+            background: transparent !important;
+            border: none !important;
+        }
+
+        body.login #content {
+            background: rgba(255, 255, 255, 0.94) !important;
+            border: 1px solid #ebdccb !important;
+            border-radius: 20px !important;
+            box-shadow: 0 16px 40px -8px rgba(156, 81, 32, 0.12) !important;
+            padding: 32px 36px !important;
+            backdrop-filter: blur(16px) !important;
+        }
+
+        body.login #header {
+            border-radius: 20px 20px 0 0 !important;
+            text-align: center !important;
+        }
+
+        body.login .submit-row input {
+            width: 100% !important;
+            padding: 12px !important;
+            font-size: 15px !important;
+        }
+    </style>
 {% endblock %}
