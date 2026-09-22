@@ -257,3 +257,48 @@ class EmergencyCall(models.Model):
     def __str__(self):
         return f"Emergency: {self.user.username} - {self.service_type} ({self.status})"
 
+
+class SupportConversation(models.Model):
+    STATUS_CHOICES = [
+        ('OPEN', 'Open'),
+        ('RESOLVED', 'Resolved'),
+        ('ESCALATED', 'Escalated to Human Admin'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='support_conversations')
+    session_key = models.CharField(max_length=64, db_index=True, blank=True)
+    status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='OPEN')
+    subject = models.CharField(max_length=200, default='General Inquiry')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        user_name = self.user.username if self.user else f"Guest ({self.session_key[:8] if self.session_key else 'Anonymous'})"
+        return f"Support #{self.id}: {user_name} - {self.subject} ({self.status})"
+
+    class Meta:
+        verbose_name = 'Support Conversation'
+        verbose_name_plural = 'Support Conversations'
+        ordering = ['-updated_at']
+
+
+class SupportMessage(models.Model):
+    SENDER_CHOICES = [
+        ('USER', 'User / Visitor'),
+        ('AI', 'AI Support Executive'),
+        ('ADMIN', 'Human Admin'),
+    ]
+
+    conversation = models.ForeignKey(SupportConversation, on_delete=models.CASCADE, related_name='messages')
+    sender = models.CharField(max_length=10, choices=SENDER_CHOICES, default='USER')
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"[{self.sender}] #{self.conversation.id}: {self.message[:40]}"
+
+    class Meta:
+        verbose_name = 'Support Message'
+        verbose_name_plural = 'Support Messages'
+        ordering = ['created_at']
+

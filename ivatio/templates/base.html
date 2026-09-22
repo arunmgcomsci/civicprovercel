@@ -340,6 +340,10 @@
                     {% else %}
                         <a href="{% url 'search_workers' %}" class="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-[#9c5120] hover:bg-[#faefe3]/70 rounded-xl transition-all">Find Workers</a>
                     {% endif %}
+                    <a href="{% url 'support_hub' %}" class="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-[#9c5120] hover:bg-[#faefe3]/70 rounded-xl transition-all flex items-center gap-1.5">
+                        <span>Support</span>
+                        <span class="px-1.5 py-0.5 rounded-full bg-amber-100 text-[#9c5120] text-[10px] font-bold border border-amber-200">AI</span>
+                    </a>
                 </div>
 
                 <!-- Right side -->
@@ -366,6 +370,7 @@
                                     <a href="{% url 'employer_dashboard' %}" class="block px-4 py-2.5 text-sm text-slate-700 hover:bg-[#faefe3] hover:text-[#9c5120] transition-all font-medium">📊 Dashboard</a>
                                     <a href="{% url 'search_workers' %}" class="block px-4 py-2.5 text-sm text-slate-700 hover:bg-[#faefe3] hover:text-[#9c5120] transition-all font-medium">🔍 Find Workers</a>
                                 {% endif %}
+                                <a href="{% url 'support_hub' %}" class="block px-4 py-2.5 text-sm text-slate-700 hover:bg-[#faefe3] hover:text-[#9c5120] transition-all font-medium">💬 Support & AI Help</a>
                                 {% if user.is_superuser %}
                                     <a href="/admin/" class="block px-4 py-2.5 text-sm text-slate-700 hover:bg-[#faefe3] hover:text-[#9c5120] transition-all font-medium">⚙️ Admin Panel</a>
                                 {% endif %}
@@ -432,7 +437,7 @@
                     <ul class="space-y-2 text-sm text-slate-600 font-medium">
                         <li><a href="{% url 'register_worker' %}" class="hover:text-[#9c5120] transition-colors">Create Profile</a></li>
                         <li><a href="{% url 'worker_dashboard' %}" class="hover:text-[#9c5120] transition-colors">Worker Dashboard</a></li>
-                        <li><a href="#" class="hover:text-[#9c5120] transition-colors">How it Works</a></li>
+                        <li><a href="{% url 'support_hub' %}" class="hover:text-[#9c5120] transition-colors">Worker Support</a></li>
                     </ul>
                 </div>
                 <div>
@@ -440,12 +445,12 @@
                     <ul class="space-y-2 text-sm text-slate-600 font-medium">
                         <li><a href="{% url 'register_employer' %}" class="hover:text-[#9c5120] transition-colors">Post a Job</a></li>
                         <li><a href="{% url 'search_workers' %}" class="hover:text-[#9c5120] transition-colors">Find Workers</a></li>
-                        <li><a href="{% url 'employer_dashboard' %}" class="hover:text-[#9c5120] transition-colors">My Hires</a></li>
+                        <li><a href="{% url 'support_hub' %}" class="hover:text-[#9c5120] transition-colors">Support & AI Help</a></li>
                     </ul>
                 </div>
             </div>
             <div class="border-t border-[#ebdccb] mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <p class="text-xs text-slate-500 font-medium">© 2024 CivicPro. Built with Django + Leaflet.js</p>
+                <p class="text-xs text-slate-500 font-medium">© 2024 CivicPro. Built with Django + Leaflet.js • <a href="{% url 'support_hub' %}" class="hover:text-[#9c5120] font-semibold transition-colors">Customer Support</a></p>
                 <div class="flex items-center gap-2 text-xs text-slate-600 font-medium">
                     <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                     All systems operational
@@ -473,6 +478,9 @@
             if (container) container.style.display = 'none';
         }, 4000);
     </script>
+
+    <!-- Floating AI Support Executive Widget -->
+    {% include 'components/support_widget.html' %}
 
     {% block extra_js %}{% endblock %}
 </body>

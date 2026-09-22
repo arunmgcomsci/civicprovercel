@@ -16,7 +16,11 @@ from django.views.decorators.http import require_POST
 from django.db.models import Avg, Count
 from django.utils import timezone
 
-from .models import UserProfile, HireRequest, Review, WorkerAvailabilityLog, EmergencyCall, geocode_location
+from .models import (
+    UserProfile, HireRequest, Review, WorkerAvailabilityLog,
+    EmergencyCall, geocode_location, SupportConversation, SupportMessage
+)
+from .ai_support import get_ai_support_response, get_user_context
 from .forms import (
     WorkerRegistrationForm, EmployerRegistrationForm,
     WorkerProfileForm, HireRequestForm, ReviewForm, WorkerSearchForm
@@ -753,5 +757,222 @@ def emergency_view(request):
         'role': profile.role,
     }
     return render(request, 'emergency.html', context)
+
+
+# ─────────────────────────────────────────────
+#  CUSTOMER SUPPORT & AI EXECUTIVE
+# ─────────────────────────────────────────────
+
+def _get_or_create_support_conversation(request, conversation_id=None):
+    """
+    Helper to fetch or initialize an active support conversation
+    for either an authenticated user or a session-tracked visitor.
+    """
+    if not request.session.session_key:
+        request.session.save()
+    session_key = request.session.session_key
+
+    conv = None
+    if conversation_id:
+        conv = SupportConversation.objects.filter(id=conversation_id).first()
+
+    if not conv:
+        if request.user.is_authenticated:
+            conv = SupportConversation.objects.filter(user=request.user, status='OPEN').order_by('-updated_at').first()
+        else:
+            conv = SupportConversation.objects.filter(session_key=session_key, status='OPEN').order_by('-updated_at').first()
+
+    if not conv:
+        conv = SupportConversation.objects.create(
+            user=request.user if request.user.is_authenticated else None,
+            session_key=session_key or "",
+            status='OPEN',
+            subject='General Inquiry'
+        )
+    return conv
+
+
+def support_hub(request):
+    """
+    Dedicated Customer Support Center page with FAQs,
+    quick contact info, and integrated AI executive chat interface.
+    """
+    faqs = [
+        {
+            'q': 'How do I find and hire a worker near me?',
+            'a': 'Simply log in to your account and click "Find Workers" in the navigation bar. You can choose a trade (like Electrician or Plumber), enter your location or use device GPS, and adjust the radius slider up to 50 km. Click any worker card to view their profile, daily rate, verified status, and click "Send Hire Request".'
+        },
+        {
+            'q': 'How do payments and daily wages work?',
+            'a': 'CivicPro operates on a 100% transparent, zero-commission model. Workers set their own daily wage rates directly. Employers pay workers directly in cash or UPI at the end of the work day. CivicPro does not deduct any fees or platform cuts.'
+        },
+        {
+            'q': 'How do I register as a skilled daily-wage worker?',
+            'a': 'Click "Join as Worker" on the homepage or register page. Once registered, complete your profile setup by selecting your trade, daily wage rate (₹), years of experience, and location. You can toggle your status to "Available" so employers can discover and hire you.'
+        },
+        {
+            'q': 'What is the Verified Worker badge?',
+            'a': 'A Verified Badge indicates that the worker\'s identity, trade experience, and contact details have been reviewed by our administrative team. It boosts your trust score and helps you get more hiring requests.'
+        },
+        {
+            'q': 'How does the Emergency SOS service work on worksites?',
+            'a': 'Our Emergency Services system provides rapid one-click dispatch for Medical / Ambulance (108), Police (112), and Fire Force (101). When an emergency is triggered, it instantly alerts the connected worker or employer on site with location details and medical notes.'
+        },
+        {
+            'q': 'How can I contact a human administrator?',
+            'a': 'You can escalate any chat with our AI Support Executive Maya by typing "Speak with human admin" or emailing support@civicpro.in. Escalated tickets are tracked directly in the platform management portal.'
+        }
+    ]
+
+    conv = _get_or_create_support_conversation(request)
+    messages_list = conv.messages.all().order_by('created_at')
+    user_ctx = get_user_context(request.user if request.user.is_authenticated else None)
+
+    context = {
+        'faqs': faqs,
+        'conversation': conv,
+        'initial_messages': messages_list,
+        'user_ctx': user_ctx,
+    }
+    return render(request, 'support.html', context)
+
+
+def api_support_chat(request):
+    """
+    JSON API for sending a message to the AI Support Executive
+    and receiving an intelligent, formatted reply with quick chips.
+    """
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': 'POST method required.'}, status=405)
+
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+    except Exception:
+        data = request.POST
+
+    message = data.get('message', '').strip()
+    conversation_id = data.get('conversation_id')
+
+    if not message:
+        return JsonResponse({'status': 'error', 'message': 'Message cannot be empty.'}, status=400)
+
+    conv = _get_or_create_support_conversation(request, conversation_id)
+
+    # Save user message
+    SupportMessage.objects.create(
+        conversation=conv,
+        sender='USER',
+        message=message
+    )
+
+    # Fetch recent message history
+    recent_msgs = conv.messages.all().order_by('-created_at')[:8]
+    history = [{'sender': m.sender, 'text': m.message} for m in reversed(list(recent_msgs))]
+
+    # Generate response
+    ai_result = get_ai_support_response(message, user=request.user if request.user.is_authenticated else None, history=history)
+
+    # Save AI response
+    SupportMessage.objects.create(
+        conversation=conv,
+        sender='AI',
+        message=ai_result['reply']
+    )
+
+    # Update conversation status if escalated
+    if ai_result.get('escalated'):
+        conv.status = 'ESCALATED'
+
+    if conv.subject == 'General Inquiry' and ai_result.get('subject'):
+        conv.subject = ai_result['subject']
+
+    conv.save()
+
+    return JsonResponse({
+        'status': 'success',
+        'conversation_id': conv.id,
+        'reply': ai_result['reply'],
+        'chips': ai_result.get('chips', []),
+        'escalated': conv.status == 'ESCALATED',
+        'timestamp': timezone.now().strftime('%I:%M %p')
+    })
+
+
+def api_support_history(request):
+    """
+    Fetches the chat transcript for the active support conversation.
+    """
+    conv = _get_or_create_support_conversation(request)
+    messages_data = [
+        {
+            'id': m.id,
+            'sender': m.sender,
+            'message': m.message,
+            'created_at': m.created_at.strftime('%I:%M %p')
+        }
+        for m in conv.messages.all().order_by('created_at')
+    ]
+
+    return JsonResponse({
+        'status': 'success',
+        'conversation_id': conv.id,
+        'conversation_status': conv.status,
+        'messages': messages_data,
+    })
+
+
+def api_support_clear(request):
+    """
+    Clears the current chat session by resolving previous conversation
+    and creating a fresh one.
+    """
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': 'POST method required.'}, status=405)
+
+    if not request.session.session_key:
+        request.session.save()
+    session_key = request.session.session_key
+
+    if request.user.is_authenticated:
+        SupportConversation.objects.filter(user=request.user, status='OPEN').update(status='RESOLVED')
+    else:
+        SupportConversation.objects.filter(session_key=session_key, status='OPEN').update(status='RESOLVED')
+
+    new_conv = SupportConversation.objects.create(
+        user=request.user if request.user.is_authenticated else None,
+        session_key=session_key or "",
+        status='OPEN',
+        subject='New Inquiry'
+    )
+
+    return JsonResponse({
+        'status': 'success',
+        'conversation_id': new_conv.id,
+        'message': 'Chat session reset.'
+    })
+
+
+def api_support_escalate(request):
+    """
+    Explicitly marks conversation as ESCALATED to human administrators.
+    """
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': 'POST method required.'}, status=405)
+
+    conv = _get_or_create_support_conversation(request)
+    conv.status = 'ESCALATED'
+    conv.save()
+
+    SupportMessage.objects.create(
+        conversation=conv,
+        sender='AI',
+        message="⚠️ This ticket has been marked as **Escalated**. A CivicPro support executive has been notified and will review your conversation history in the admin console."
+    )
+
+    return JsonResponse({
+        'status': 'success',
+        'conversation_id': conv.id,
+        'message': 'Conversation escalated to human administrator.'
+    })
 
 

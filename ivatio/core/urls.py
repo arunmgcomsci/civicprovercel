@@ -37,6 +37,12 @@ urlpatterns = [
     path('emergency/update-status/', views.update_emergency_status, name='update_emergency_status'),
     path('emergency/active/', views.get_active_emergency, name='get_active_emergency'),
 
+    # Customer Support & AI Executive
+    path('support/', views.support_hub, name='support_hub'),
+    path('api/support/chat/', views.api_support_chat, name='api_support_chat'),
+    path('api/support/history/', views.api_support_history, name='api_support_history'),
+    path('api/support/clear/', views.api_support_clear, name='api_support_clear'),
+    path('api/support/escalate/', views.api_support_escalate, name='api_support_escalate'),
 
     # API
     path('api/workers/', views.api_workers_nearby, name='api_workers_nearby'),

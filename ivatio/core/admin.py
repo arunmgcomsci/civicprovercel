@@ -8,7 +8,10 @@ from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
-from .models import UserProfile, HireRequest, Review, WorkerAvailabilityLog
+from .models import (
+    UserProfile, HireRequest, Review, WorkerAvailabilityLog,
+    EmergencyCall, SupportConversation, SupportMessage
+)
 
 
 # Customize Admin Site Header
@@ -191,3 +194,69 @@ class WorkerAvailabilityLogAdmin(admin.ModelAdmin):
     list_display = ('worker', 'became_available', 'logged_at')
     list_filter = ('became_available', 'logged_at')
     readonly_fields = ('logged_at',)
+
+
+@admin.register(EmergencyCall)
+class EmergencyCallAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'service_type', 'condition', 'status_badge', 'location_name', 'created_at')
+    list_filter = ('status', 'service_type', 'created_at')
+    search_fields = ('user__username', 'condition', 'location_name')
+    readonly_fields = ('created_at', 'ended_at')
+
+    def status_badge(self, obj):
+        if obj.status == 'ACTIVE':
+            return mark_safe('<span style="background:#fef2f2; color:#dc2626; border:1px solid #fecaca; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:700;">🚨 Active</span>')
+        return mark_safe('<span style="background:#f5f5f4; color:#785e4f; border:1px solid #e7e5e4; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:500;">Ended</span>')
+    status_badge.short_description = 'Status'
+
+
+class SupportMessageInline(admin.TabularInline):
+    model = SupportMessage
+    extra = 0
+    readonly_fields = ('sender', 'message', 'created_at')
+    can_delete = True
+
+
+@admin.register(SupportConversation)
+class SupportConversationAdmin(admin.ModelAdmin):
+    list_display = ('id', 'get_user', 'subject', 'status_badge', 'get_message_count', 'created_at', 'updated_at')
+    list_filter = ('status', 'created_at')
+    search_fields = ('user__username', 'session_key', 'subject', 'messages__message')
+    readonly_fields = ('created_at', 'updated_at')
+    inlines = [SupportMessageInline]
+    actions = ['mark_resolved', 'mark_escalated', 'mark_open']
+
+    def get_user(self, obj):
+        if obj.user:
+            return obj.user.get_full_name() or obj.user.username
+        return f"Guest ({obj.session_key[:8] if obj.session_key else 'Anonymous'})"
+    get_user.short_description = 'User / Guest'
+
+    def get_message_count(self, obj):
+        return obj.messages.count()
+    get_message_count.short_description = 'Messages'
+
+    def status_badge(self, obj):
+        badges = {
+            'OPEN': 'background:#fffbeb; color:#b45309; border:1px solid #fde68a;',
+            'RESOLVED': 'background:#ecfdf5; color:#059669; border:1px solid #a7f3d0;',
+            'ESCALATED': 'background:#fef2f2; color:#dc2626; border:1px solid #fecaca;',
+        }
+        style = badges.get(obj.status, 'background:#f5f5f4; color:#57534e; border:1px solid #e7e5e4;')
+        return format_html(
+            '<span style="{}; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:700;">{}</span>',
+            style, obj.get_status_display()
+        )
+    status_badge.short_description = 'Status'
+
+    def mark_resolved(self, request, queryset):
+        queryset.update(status='RESOLVED')
+    mark_resolved.short_description = "✓ Mark as Resolved"
+
+    def mark_escalated(self, request, queryset):
+        queryset.update(status='ESCALATED')
+    mark_escalated.short_description = "⚠️ Escalate to Human Admin"
+
+    def mark_open(self, request, queryset):
+        queryset.update(status='OPEN')
+    mark_open.short_description = "Re-open Conversation"

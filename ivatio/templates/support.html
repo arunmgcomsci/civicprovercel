@@ -1,0 +1,470 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Customer Support & AI Executive | CivicPro{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+
+    <!-- Hero Header -->
+    <div class="relative overflow-hidden rounded-3xl p-8 md:p-12 mb-10 shadow-xl border border-[#ebdccb]"
+         style="background: linear-gradient(135deg, #562a12 0%, #834017 55%, #9c5120 100%);">
+        
+        <!-- Ambient background glow elements -->
+        <div class="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-amber-500/20 blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-24 -left-24 w-80 h-80 rounded-full bg-amber-300/15 blur-2xl pointer-events-none"></div>
+
+        <div class="relative z-10 max-w-3xl">
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/15 border border-white/20 text-[#faefe3] text-xs font-semibold uppercase tracking-wider mb-4 shadow-sm backdrop-blur-md">
+                <span>✨</span> 24/7 AI-Assisted Customer Support
+            </div>
+            <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
+                How can we support you today?
+            </h1>
+            <p class="mt-4 text-base sm:text-lg text-[#f5dcbf] leading-relaxed">
+                Connect with our AI Support Executive <strong>Maya</strong> for real-time guidance on hiring, setting daily rates, worker verification, and worksite safety.
+            </p>
+        </div>
+    </div>
+
+    <!-- Quick Action Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+        
+        <!-- Card 1: Emergency SOS -->
+        <a href="{% url 'emergency_view' %}" 
+           class="group p-5 rounded-2xl bg-white border border-[#ebdccb] hover:border-red-400 hover:shadow-lg transition-all duration-300 flex flex-col justify-between">
+            <div>
+                <div class="w-12 h-12 rounded-xl bg-red-50 border border-red-200 text-red-600 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+                    🚨
+                </div>
+                <h3 class="font-bold text-slate-800 group-hover:text-red-600 transition-colors">Emergency Worksite SOS</h3>
+                <p class="text-xs text-slate-500 mt-1.5 leading-relaxed">
+                    Instant one-click medical, police, and fire alert dispatch for worksite accidents.
+                </p>
+            </div>
+            <div class="mt-4 flex items-center text-xs font-bold text-red-600 group-hover:translate-x-1 transition-transform">
+                Open Emergency Services →
+            </div>
+        </a>
+
+        <!-- Card 2: Find Workers -->
+        <a href="{% url 'search_workers' %}" 
+           class="group p-5 rounded-2xl bg-white border border-[#ebdccb] hover:border-[#9c5120] hover:shadow-lg transition-all duration-300 flex flex-col justify-between">
+            <div>
+                <div class="w-12 h-12 rounded-xl bg-[#faefe3] border border-[#ebdccb] text-[#9c5120] flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+                    👷
+                </div>
+                <h3 class="font-bold text-slate-800 group-hover:text-[#9c5120] transition-colors">Find Skilled Workers</h3>
+                <p class="text-xs text-slate-500 mt-1.5 leading-relaxed">
+                    Search nearby verified electricians, plumbers, carpenters, and helpers on the live map.
+                </p>
+            </div>
+            <div class="mt-4 flex items-center text-xs font-bold text-[#9c5120] group-hover:translate-x-1 transition-transform">
+                Browse Directory →
+            </div>
+        </a>
+
+        <!-- Card 3: Worker Setup -->
+        <a href="{% url 'worker_profile_setup' %}" 
+           class="group p-5 rounded-2xl bg-white border border-[#ebdccb] hover:border-[#9c5120] hover:shadow-lg transition-all duration-300 flex flex-col justify-between">
+            <div>
+                <div class="w-12 h-12 rounded-xl bg-amber-50 border border-amber-200 text-[#b45d24] flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+                    🛠️
+                </div>
+                <h3 class="font-bold text-slate-800 group-hover:text-[#9c5120] transition-colors">Worker Profile & Rates</h3>
+                <p class="text-xs text-slate-500 mt-1.5 leading-relaxed">
+                    Update your trade category, daily wage rates (₹), location, and availability status.
+                </p>
+            </div>
+            <div class="mt-4 flex items-center text-xs font-bold text-[#9c5120] group-hover:translate-x-1 transition-transform">
+                Setup Profile →
+            </div>
+        </a>
+
+        <!-- Card 4: Human Admin Escalation -->
+        <button type="button" 
+                onclick="window.CivicProChat.ask('I would like to speak with a human administrator please.')"
+                class="group p-5 rounded-2xl bg-white border border-[#ebdccb] hover:border-[#834017] hover:shadow-lg transition-all duration-300 flex flex-col justify-between text-left">
+            <div>
+                <div class="w-12 h-12 rounded-xl bg-[#faefe3] border border-[#ebdccb] text-[#834017] flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+                    🤝
+                </div>
+                <h3 class="font-bold text-slate-800 group-hover:text-[#834017] transition-colors">Admin Escalation</h3>
+                <p class="text-xs text-slate-500 mt-1.5 leading-relaxed">
+                    Need human review for a dispute or inquiry? Escalate directly to our admin team.
+                </p>
+            </div>
+            <div class="mt-4 flex items-center text-xs font-bold text-[#834017] group-hover:translate-x-1 transition-transform">
+                Escalate Ticket →
+            </div>
+        </button>
+    </div>
+
+    <!-- Main Dual-Column Content: FAQs & Embedded AI Executive -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        <!-- Left: Searchable FAQ Center (7 cols) -->
+        <div class="lg:col-span-7 space-y-8">
+            
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-[#ebdccb] shadow-md">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#ebdccb]/60">
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-bold text-slate-800">Frequently Asked Questions</h2>
+                        <p class="text-xs sm:text-sm text-slate-500 mt-1">Quick answers to common questions on CivicPro</p>
+                    </div>
+                    <!-- FAQ Search Input -->
+                    <div class="relative sm:w-64">
+                        <input type="text" 
+                               id="faqSearchInput" 
+                               placeholder="Search topics..." 
+                               class="w-full pl-9 pr-3.5 py-2 text-xs rounded-xl border border-[#ebdccb] bg-[#fcf8f3] text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#9c5120]/40">
+                        <span class="absolute left-3 top-2.5 text-slate-400 text-xs">🔍</span>
+                    </div>
+                </div>
+
+                <!-- FAQ Accordion List -->
+                <div class="divide-y divide-[#ebdccb]/50 mt-4" id="faqAccordionList">
+                    {% for faq in faqs %}
+                    <div class="py-4 faq-item">
+                        <button type="button" 
+                                class="faq-toggle w-full flex items-center justify-between text-left font-semibold text-slate-800 hover:text-[#9c5120] transition-colors gap-3 py-1">
+                            <span class="faq-question text-sm sm:text-base">{{ faq.q }}</span>
+                            <span class="faq-icon text-lg text-slate-400 transform transition-transform duration-200">＋</span>
+                        </button>
+                        <div class="faq-answer hidden mt-3 text-xs sm:text-sm text-slate-600 leading-relaxed pl-2 border-l-2 border-[#9c5120]">
+                            {{ faq.a }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Zero Commission Policy Banner -->
+            <div class="rounded-3xl p-6 bg-gradient-to-r from-[#faefe3] to-[#f5dcbf] border border-[#ebdccb] flex items-start gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center text-2xl flex-shrink-0">
+                    🛡️
+                </div>
+                <div>
+                    <h3 class="font-bold text-[#562a12] text-base">CivicPro Zero-Middleman Guarantee</h3>
+                    <p class="text-xs sm:text-sm text-[#834017] mt-1 leading-relaxed">
+                        Every single rupee agreed upon goes directly to the skilled worker. We believe in dignity of labor, fair daily wages, and transparent hiring with no hidden commissions.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Contact Helpdesk Box -->
+            <div class="rounded-3xl p-6 bg-white border border-[#ebdccb] shadow-sm">
+                <h3 class="font-bold text-slate-800 text-sm sm:text-base mb-4 flex items-center gap-2">
+                    <span>📞</span> Direct Support Channels
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                    <div class="p-3.5 rounded-2xl bg-[#fcf8f3] border border-[#ebdccb]/70">
+                        <p class="font-semibold text-slate-700">Administrative Inquiries</p>
+                        <p class="text-slate-500 mt-0.5">support@civicpro.in</p>
+                        <p class="text-[11px] text-slate-400 mt-1">Response within 24 business hours</p>
+                    </div>
+                    <div class="p-3.5 rounded-2xl bg-[#fcf8f3] border border-[#ebdccb]/70">
+                        <p class="font-semibold text-slate-700">Support Hours</p>
+                        <p class="text-slate-500 mt-0.5">Mon – Sat, 9:00 AM – 7:00 PM IST</p>
+                        <p class="text-[11px] text-slate-400 mt-1">Kerala & National Coverage</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right: Dedicated AI Support Executive Station (5 cols) -->
+        <div class="lg:col-span-5 sticky top-24">
+            <div class="bg-white rounded-3xl border border-[#ebdccb] shadow-xl overflow-hidden flex flex-col h-[640px]">
+                
+                <!-- Station Header -->
+                <div class="p-5 border-b border-[#ebdccb] flex items-center justify-between"
+                     style="background: linear-gradient(135deg, #562a12 0%, #834017 60%, #9c5120 100%);">
+                    <div class="flex items-center gap-3">
+                        <div class="relative">
+                            <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#faefe3] to-[#ebdccb] flex items-center justify-center shadow-md text-2xl border border-white/20">
+                                👩‍💼
+                            </div>
+                            <span class="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-emerald-400 border-2 border-[#562a12]" title="Online"></span>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h3 class="font-bold text-white text-base">Maya</h3>
+                                <span class="px-2 py-0.5 rounded-full bg-white/20 text-[9px] font-semibold text-[#faefe3] uppercase tracking-wider">AI Executive</span>
+                            </div>
+                            <p class="text-xs text-[#f5dcbf]">CivicPro Platform Specialist</p>
+                        </div>
+                    </div>
+
+                    <button type="button" 
+                            id="hubResetChatBtn" 
+                            class="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white/90 text-xs flex items-center gap-1.5 transition"
+                            title="Start New Chat">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                        </svg>
+                        <span>Reset</span>
+                    </button>
+                </div>
+
+                <!-- Station Message Stream -->
+                <div id="hubMessagesContainer" class="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 text-xs sm:text-sm bg-[#fcf8f3]/60 scroll-smooth">
+                    <!-- Initial Welcome Greeting -->
+                    <div class="flex items-start gap-2.5">
+                        <div class="w-8 h-8 rounded-xl bg-[#faefe3] border border-[#ebdccb] flex items-center justify-center flex-shrink-0 text-base shadow-sm">
+                            👩‍💼
+                        </div>
+                        <div class="max-w-[85%] rounded-2xl rounded-tl-sm p-4 bg-white text-slate-800 shadow-sm border border-[#ebdccb]/70 leading-relaxed">
+                            <p class="font-medium text-slate-800">
+                                👋 Hello {{ user_ctx.name }}! Welcome to the CivicPro Support Hub.
+                            </p>
+                            <p class="mt-1.5 text-xs text-slate-600">
+                                I'm **Maya**, your dedicated AI Support Executive. Ask me anything about worker search, setting daily wages, verification, or worksite emergency dispatch.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Initial Suggestion Chips -->
+                    <div id="hubInitialChips" class="flex flex-wrap gap-1.5 pl-10">
+                        <button type="button" class="hub-chip text-xs bg-white hover:bg-[#faefe3] text-[#9c5120] font-medium px-3 py-1.5 rounded-full border border-[#ebdccb] transition shadow-xs hover:border-[#9c5120]" data-query="How do I find and hire workers?">
+                            👷 Finding Workers
+                        </button>
+                        <button type="button" class="hub-chip text-xs bg-white hover:bg-[#faefe3] text-[#9c5120] font-medium px-3 py-1.5 rounded-full border border-[#ebdccb] transition shadow-xs hover:border-[#9c5120]" data-query="How do daily wage payments work?">
+                            💰 Daily Wages & Pay
+                        </button>
+                        <button type="button" class="hub-chip text-xs bg-white hover:bg-[#faefe3] text-[#9c5120] font-medium px-3 py-1.5 rounded-full border border-[#ebdccb] transition shadow-xs hover:border-[#9c5120]" data-query="How does Emergency SOS work?">
+                            🚨 Emergency SOS
+                        </button>
+                        <button type="button" class="hub-chip text-xs bg-white hover:bg-[#faefe3] text-[#9c5120] font-medium px-3 py-1.5 rounded-full border border-[#ebdccb] transition shadow-xs hover:border-[#9c5120]" data-query="How to get a Verified Worker badge?">
+                            ✓ Worker Verification
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Typing indicator -->
+                <div id="hubTypingIndicator" class="hidden px-5 py-2 flex items-center gap-2 text-xs text-slate-500 bg-[#faefe3]/50 border-t border-[#ebdccb]/30">
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#9c5120] animate-bounce"></span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#9c5120] animate-bounce" style="animation-delay: 0.15s"></span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#9c5120] animate-bounce" style="animation-delay: 0.3s"></span>
+                    <span class="ml-1 text-xs font-medium text-[#834017]">Maya is composing a reply...</span>
+                </div>
+
+                <!-- Chat Input Form -->
+                <div class="p-3.5 border-t border-[#ebdccb] bg-white">
+                    <form id="hubChatForm" class="flex items-center gap-2">
+                        <input type="text" 
+                               id="hubChatInput" 
+                               placeholder="Type your question for Maya..." 
+                               autocomplete="off"
+                               class="flex-1 px-4 py-2.5 text-xs sm:text-sm rounded-2xl border border-[#ebdccb] bg-[#fcf8f3] text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#9c5120]/40 focus:border-[#9c5120] transition">
+                        <button type="submit" 
+                                class="px-4 py-2.5 rounded-2xl bg-[#9c5120] hover:bg-[#834017] text-white text-xs font-bold transition shadow-md shadow-[#9c5120]/20 flex items-center gap-1.5">
+                            <span>Send</span>
+                            <svg class="w-4 h-4 transform rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                            </svg>
+                        </button>
+                    </form>
+                    <div class="mt-2 flex items-center justify-between text-[11px] text-slate-400 px-1">
+                        <span>Instant AI Executive Responses</span>
+                        <button type="button" 
+                                onclick="window.CivicProChat.ask('I would like to speak with a human administrator please.')"
+                                class="text-[#9c5120] hover:underline font-semibold">
+                            Escalate to Human Admin
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. FAQ Accordion Logic
+    const faqItems = document.querySelectorAll('.faq-item');
+    faqItems.forEach(item => {
+        const toggle = item.querySelector('.faq-toggle');
+        const answer = item.querySelector('.faq-answer');
+        const icon = item.querySelector('.faq-icon');
+
+        toggle.addEventListener('click', () => {
+            const isHidden = answer.classList.contains('hidden');
+            // Close other answers for accordion feel
+            faqItems.forEach(other => {
+                other.querySelector('.faq-answer').classList.add('hidden');
+                other.querySelector('.faq-icon').textContent = '＋';
+            });
+            if (isHidden) {
+                answer.classList.remove('hidden');
+                icon.textContent = '✕';
+            } else {
+                answer.classList.add('hidden');
+                icon.textContent = '＋';
+            }
+        });
+    });
+
+    // 2. FAQ Live Search Filter
+    const searchInput = document.getElementById('faqSearchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            faqItems.forEach(item => {
+                const question = item.querySelector('.faq-question').textContent.toLowerCase();
+                const answer = item.querySelector('.faq-answer').textContent.toLowerCase();
+                if (question.includes(query) || answer.includes(query)) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    }
+
+    // 3. Embedded AI Executive Station Chat Logic
+    const hubMessages = document.getElementById('hubMessagesContainer');
+    const hubForm = document.getElementById('hubChatForm');
+    const hubInput = document.getElementById('hubChatInput');
+    const hubTyping = document.getElementById('hubTypingIndicator');
+    const hubResetBtn = document.getElementById('hubResetChatBtn');
+    let isHubBusy = false;
+
+    function getCsrfToken() {
+        const cookieValue = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('csrftoken='))
+            ?.split('=')[1];
+        if (cookieValue) return cookieValue;
+        const input = document.querySelector('[name=csrfmiddlewaretoken]');
+        return input ? input.value : '';
+    }
+
+    function scrollHub() {
+        setTimeout(() => {
+            hubMessages.scrollTop = hubMessages.scrollHeight;
+        }, 50);
+    }
+
+    function formatMarkdown(text) {
+        if (!text) return '';
+        let sanitized = text
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/^• (.*?)$/gm, '<li class="ml-4 list-disc text-slate-700">$1</li>')
+            .replace(/\n\n/g, '<div class="h-2"></div>')
+            .replace(/\n/g, '<br>')
+            .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" class="inline-flex items-center text-[#9c5120] hover:text-[#6d3415] font-semibold underline decoration-[#9c5120]/40 hover:decoration-[#9c5120] transition">$1 ↗</a>');
+        return sanitized;
+    }
+
+    function appendHubMessage(sender, text, chips = [], timestamp = null) {
+        const isUser = sender === 'USER';
+        const timeStr = timestamp || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const wrapper = document.createElement('div');
+        wrapper.className = isUser ? 'flex items-end justify-end gap-2' : 'flex items-start gap-2.5';
+
+        if (isUser) {
+            wrapper.innerHTML = `
+                <div class="max-w-[85%] rounded-2xl rounded-tr-sm px-4 py-2.5 bg-gradient-to-r from-[#9c5120] to-[#834017] text-white shadow-md text-xs sm:text-sm">
+                    <p class="leading-relaxed whitespace-pre-wrap">${text}</p>
+                    <span class="block text-[9px] text-[#faefe3]/70 text-right mt-1">${timeStr}</span>
+                </div>
+            `;
+        } else {
+            wrapper.innerHTML = `
+                <div class="w-8 h-8 rounded-xl bg-[#faefe3] border border-[#ebdccb] flex items-center justify-center flex-shrink-0 text-base shadow-sm">
+                    👩‍💼
+                </div>
+                <div class="max-w-[85%] rounded-2xl rounded-tl-sm p-4 bg-white text-slate-800 shadow-sm border border-[#ebdccb]/70 leading-relaxed text-xs sm:text-sm">
+                    <div>${formatMarkdown(text)}</div>
+                    <span class="block text-[9px] text-slate-400 mt-1.5">${timeStr}</span>
+                </div>
+            `;
+        }
+        hubMessages.appendChild(wrapper);
+
+        if (chips && chips.length > 0 && !isUser) {
+            const chipsWrapper = document.createElement('div');
+            chipsWrapper.className = 'flex flex-wrap gap-1.5 pl-10 pt-1';
+            chips.forEach(chip => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'hub-chip text-xs bg-white hover:bg-[#faefe3] text-[#9c5120] font-medium px-3 py-1 rounded-full border border-[#ebdccb] transition shadow-xs hover:border-[#9c5120]';
+                btn.textContent = chip;
+                btn.setAttribute('data-query', chip.replace(/^[^\w\s]+/, '').trim());
+                chipsWrapper.appendChild(btn);
+            });
+            hubMessages.appendChild(chipsWrapper);
+        }
+
+        scrollHub();
+    }
+
+    async function sendHubQuery(query) {
+        if (!query || isHubBusy) return;
+        isHubBusy = true;
+
+        appendHubMessage('USER', query);
+        hubInput.value = '';
+        hubTyping.classList.remove('hidden');
+        scrollHub();
+
+        try {
+            const res = await fetch('/api/support/chat/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({ message: query })
+            });
+            const data = await res.json();
+            hubTyping.classList.add('hidden');
+
+            if (data.status === 'success') {
+                appendHubMessage('AI', data.reply, data.chips, data.timestamp);
+            } else {
+                appendHubMessage('AI', '⚠️ Could not process your request at this time.');
+            }
+        } catch (e) {
+            hubTyping.classList.add('hidden');
+            appendHubMessage('AI', '⚠️ Network issue connecting to support service.');
+        } finally {
+            isHubBusy = false;
+        }
+    }
+
+    hubForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const text = hubInput.value.trim();
+        if (text) sendHubQuery(text);
+    });
+
+    hubMessages.addEventListener('click', (e) => {
+        const chip = e.target.closest('.hub-chip');
+        if (chip) {
+            const q = chip.getAttribute('data-query') || chip.textContent.trim();
+            sendHubQuery(q);
+        }
+    });
+
+    hubResetBtn.addEventListener('click', async () => {
+        if (confirm("Reset support chat conversation?")) {
+            await fetch('/api/support/clear/', {
+                method: 'POST',
+                headers: { 'X-CSRFToken': getCsrfToken() }
+            });
+            hubMessages.innerHTML = '';
+            appendHubMessage('AI', "👋 Hello! Fresh support session started. How can I help you today?");
+        }
+    });
+});
+</script>
+{% endblock %}

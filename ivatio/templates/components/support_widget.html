@@ -1,0 +1,391 @@
+{% load static %}
+<!-- CivicPro Floating AI Support Executive Widget -->
+<div id="civicpro-support-widget" class="fixed bottom-6 right-6 z-50 font-sans" style="font-family: 'Inter', sans-serif;">
+
+    <!-- Floating Trigger Button -->
+    <button id="supportTriggerBtn"
+            class="group relative flex items-center justify-center w-14 h-14 rounded-full shadow-2xl transition-all duration-300 transform hover:scale-105 active:scale-95 focus:outline-none"
+            style="background: linear-gradient(135deg, #834017 0%, #9c5120 50%, #b45d24 100%); box-shadow: 0 10px 25px -3px rgba(131, 64, 23, 0.45);"
+            title="Chat with Maya — AI Support Executive"
+            aria-label="Open Customer Support Chat">
+        
+        <!-- Subtle pulsing aura -->
+        <span class="absolute -inset-1 rounded-full bg-gradient-to-r from-amber-500 to-[#9c5120] opacity-40 blur group-hover:opacity-75 animate-pulse transition duration-500"></span>
+
+        <!-- Chat Icon / Close Icon toggle -->
+        <span id="supportTriggerIcon" class="relative text-white text-2xl flex items-center justify-center transition-transform duration-300 group-hover:rotate-6">
+            💬
+        </span>
+
+        <!-- AI Sparkle Badge -->
+        <span class="absolute -top-1 -right-1 flex h-5 w-5">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-5 w-5 bg-gradient-to-tr from-amber-500 to-amber-300 text-[10px] font-bold text-amber-950 items-center justify-center shadow">
+                ✨
+            </span>
+        </span>
+    </button>
+
+    <!-- Chat Popup Window -->
+    <div id="supportChatWindow"
+         class="hidden flex flex-col w-[92vw] sm:w-[390px] h-[580px] max-h-[85vh] rounded-3xl shadow-2xl border border-[#ebdccb] overflow-hidden transition-all duration-300 transform origin-bottom-right"
+         style="background: rgba(253, 248, 243, 0.96); backdrop-filter: blur(16px); box-shadow: 0 25px 50px -12px rgba(86, 42, 18, 0.35);">
+
+        <!-- Header -->
+        <div class="px-5 py-4 border-b border-[#ebdccb] flex items-center justify-between text-white"
+             style="background: linear-gradient(135deg, #562a12 0%, #834017 60%, #9c5120 100%);">
+            <div class="flex items-center gap-3">
+                <div class="relative">
+                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#faefe3] to-[#ebdccb] flex items-center justify-center shadow-md text-xl border border-white/20">
+                        👩‍💼
+                    </div>
+                    <span class="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[#562a12]" title="Online"></span>
+                </div>
+                <div>
+                    <div class="flex items-center gap-1.5">
+                        <h3 class="font-bold text-sm text-white tracking-wide">Maya</h3>
+                        <span class="px-1.5 py-0.5 rounded-full bg-white/20 text-[9px] font-semibold tracking-wider uppercase text-[#faefe3]">AI Executive</span>
+                    </div>
+                    <p class="text-xs text-[#f5dcbf]/90 flex items-center gap-1">
+                        <span>⚡</span> CivicPro Customer Support
+                    </p>
+                </div>
+            </div>
+
+            <!-- Top Actions -->
+            <div class="flex items-center gap-1.5">
+                <a href="{% url 'support_hub' %}" 
+                   class="p-1.5 rounded-xl hover:bg-white/15 text-white/80 hover:text-white transition-colors text-xs" 
+                   title="Open Support Center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                    </svg>
+                </a>
+                <button id="resetChatBtn" 
+                        class="p-1.5 rounded-xl hover:bg-white/15 text-white/80 hover:text-white transition-colors" 
+                        title="Restart Conversation">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                </button>
+                <button id="closeSupportBtn" 
+                        class="p-1.5 rounded-xl hover:bg-white/15 text-white/80 hover:text-white transition-colors" 
+                        title="Minimize">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Messages Container -->
+        <div id="supportMessagesContainer" class="flex-1 overflow-y-auto p-4 space-y-3.5 text-sm scroll-smooth">
+            
+            <!-- Welcome Greeting Card -->
+            <div class="flex items-start gap-2.5">
+                <div class="w-7 h-7 rounded-xl bg-[#faefe3] border border-[#ebdccb] flex items-center justify-center flex-shrink-0 text-sm shadow-sm">
+                    👩‍💼
+                </div>
+                <div class="max-w-[85%] rounded-2xl rounded-tl-sm px-4 py-3 bg-white text-slate-800 shadow-sm border border-[#ebdccb]/60 leading-relaxed">
+                    <p class="font-medium">
+                        👋 Hi! I am <strong>Maya</strong>, your CivicPro AI Support Executive.
+                    </p>
+                    <p class="mt-1 text-xs text-slate-600">
+                        Ask me about finding workers, setting daily wages, worker verification, emergency services, or platform rules!
+                    </p>
+                </div>
+            </div>
+
+            <!-- Initial Quick Suggestion Chips -->
+            <div id="supportInitialChips" class="flex flex-wrap gap-1.5 pl-9">
+                <button type="button" class="support-chip text-xs bg-white hover:bg-[#faefe3] text-[#9c5120] font-medium px-2.5 py-1 rounded-full border border-[#ebdccb] transition shadow-xs" data-query="How do I find and hire workers?">
+                    👷 Find & Hire Workers
+                </button>
+                <button type="button" class="support-chip text-xs bg-white hover:bg-[#faefe3] text-[#9c5120] font-medium px-2.5 py-1 rounded-full border border-[#ebdccb] transition shadow-xs" data-query="How do daily wage payments work?">
+                    💰 Daily Wage Payments
+                </button>
+                <button type="button" class="support-chip text-xs bg-white hover:bg-[#faefe3] text-[#9c5120] font-medium px-2.5 py-1 rounded-full border border-[#ebdccb] transition shadow-xs" data-query="How do I register as a skilled worker?">
+                    🛠️ Join as Worker
+                </button>
+                <button type="button" class="support-chip text-xs bg-white hover:bg-[#faefe3] text-[#9c5120] font-medium px-2.5 py-1 rounded-full border border-[#ebdccb] transition shadow-xs" data-query="How does Emergency SOS work?">
+                    🚨 Emergency SOS Info
+                </button>
+            </div>
+
+            <!-- Dynamic Messages will be injected here -->
+        </div>
+
+        <!-- Typing Indicator -->
+        <div id="supportTypingIndicator" class="hidden px-5 py-2 flex items-center gap-2 text-xs text-slate-500 bg-[#faefe3]/50 border-t border-[#ebdccb]/30">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#9c5120] animate-bounce"></span>
+            <span class="w-1.5 h-1.5 rounded-full bg-[#9c5120] animate-bounce" style="animation-delay: 0.15s"></span>
+            <span class="w-1.5 h-1.5 rounded-full bg-[#9c5120] animate-bounce" style="animation-delay: 0.3s"></span>
+            <span class="ml-1 text-[11px] font-medium text-[#834017]">Maya is typing...</span>
+        </div>
+
+        <!-- Input Footer -->
+        <div class="p-3 border-t border-[#ebdccb] bg-white/90">
+            <form id="supportChatForm" class="flex items-center gap-2">
+                {% csrf_token %}
+                <div class="relative flex-1">
+                    <input type="text" 
+                           id="supportChatInput" 
+                           placeholder="Ask Maya anything..." 
+                           autocomplete="off"
+                           class="w-full pl-3.5 pr-10 py-2.5 text-xs sm:text-sm rounded-2xl border border-[#ebdccb] bg-[#fcf8f3] text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#9c5120]/40 focus:border-[#9c5120] transition">
+                </div>
+                <button type="submit" 
+                        id="supportSendBtn"
+                        class="p-2.5 rounded-2xl bg-[#9c5120] hover:bg-[#834017] text-white flex items-center justify-center transition shadow-md shadow-[#9c5120]/20 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <svg class="w-4 h-4 transform rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                    </svg>
+                </button>
+            </form>
+            <div class="mt-1.5 flex items-center justify-between text-[10px] text-slate-400 px-1">
+                <span>CivicPro AI Executive • 24/7 Support</span>
+                <button type="button" id="supportEscalateQuickBtn" class="text-[#9c5120] hover:underline font-semibold">
+                    Speak with Admin
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    const triggerBtn = document.getElementById('supportTriggerBtn');
+    const chatWindow = document.getElementById('supportChatWindow');
+    const closeBtn = document.getElementById('closeSupportBtn');
+    const resetBtn = document.getElementById('resetChatBtn');
+    const chatForm = document.getElementById('supportChatForm');
+    const chatInput = document.getElementById('supportChatInput');
+    const messagesContainer = document.getElementById('supportMessagesContainer');
+    const typingIndicator = document.getElementById('supportTypingIndicator');
+    const triggerIcon = document.getElementById('supportTriggerIcon');
+    const escalateQuickBtn = document.getElementById('supportEscalateQuickBtn');
+
+    let currentConversationId = null;
+    let isWaitingResponse = false;
+
+    // Toggle Chat Window
+    function toggleChat(forceOpen = null) {
+        const isHidden = chatWindow.classList.contains('hidden');
+        const shouldOpen = forceOpen !== null ? forceOpen : isHidden;
+
+        if (shouldOpen) {
+            chatWindow.classList.remove('hidden');
+            triggerBtn.classList.add('hidden');
+            chatInput.focus();
+            scrollToBottom();
+            // Load history if first time
+            if (!currentConversationId) {
+                loadHistory();
+            }
+        } else {
+            chatWindow.classList.add('hidden');
+            triggerBtn.classList.remove('hidden');
+        }
+    }
+
+    triggerBtn.addEventListener('click', () => toggleChat(true));
+    closeBtn.addEventListener('click', () => toggleChat(false));
+
+    // Get CSRF Token
+    function getCsrfToken() {
+        const cookieValue = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('csrftoken='))
+            ?.split('=')[1];
+        if (cookieValue) return cookieValue;
+        const input = document.querySelector('[name=csrfmiddlewaretoken]');
+        return input ? input.value : '';
+    }
+
+    // Scroll to bottom helper
+    function scrollToBottom() {
+        setTimeout(() => {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }, 60);
+    }
+
+    // Format basic Markdown into safe HTML
+    function formatMessageText(text) {
+        if (!text) return '';
+        let sanitized = text
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+
+        // Bold
+        sanitized = sanitized.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        // Bullet points
+        sanitized = sanitized.replace(/^• (.*?)$/gm, '<li class="ml-4 list-disc text-slate-700">$1</li>');
+        // Line breaks
+        sanitized = sanitized.replace(/\n\n/g, '<div class="h-2"></div>');
+        sanitized = sanitized.replace(/\n/g, '<br>');
+        // Links: [text](url)
+        sanitized = sanitized.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" class="inline-flex items-center text-[#9c5120] hover:text-[#6d3415] font-semibold underline decoration-[#9c5120]/40 hover:decoration-[#9c5120] transition">$1 ↗</a>');
+
+        return sanitized;
+    }
+
+    // Append Message to UI
+    function appendMessage(sender, text, chips = [], timestamp = null) {
+        const timeStr = timestamp || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const isUser = sender === 'USER';
+
+        const wrapper = document.createElement('div');
+        wrapper.className = isUser ? 'flex items-end justify-end gap-2' : 'flex items-start gap-2.5';
+
+        if (isUser) {
+            wrapper.innerHTML = `
+                <div class="max-w-[85%] rounded-2xl rounded-tr-sm px-4 py-2.5 bg-gradient-to-r from-[#9c5120] to-[#834017] text-white shadow-md text-xs sm:text-sm">
+                    <p class="leading-relaxed whitespace-pre-wrap">${text}</p>
+                    <span class="block text-[9px] text-[#faefe3]/70 text-right mt-1">${timeStr}</span>
+                </div>
+            `;
+        } else {
+            wrapper.innerHTML = `
+                <div class="w-7 h-7 rounded-xl bg-[#faefe3] border border-[#ebdccb] flex items-center justify-center flex-shrink-0 text-sm shadow-sm">
+                    👩‍💼
+                </div>
+                <div class="max-w-[85%] rounded-2xl rounded-tl-sm px-4 py-3 bg-white text-slate-800 shadow-sm border border-[#ebdccb]/60 leading-relaxed text-xs sm:text-sm">
+                    <div>${formatMessageText(text)}</div>
+                    <span class="block text-[9px] text-slate-400 mt-1">${timeStr}</span>
+                </div>
+            `;
+        }
+
+        messagesContainer.appendChild(wrapper);
+
+        // Append Chips if any
+        if (chips && chips.length > 0 && !isUser) {
+            const chipsWrapper = document.createElement('div');
+            chipsWrapper.className = 'flex flex-wrap gap-1.5 pl-9 pt-1';
+            chips.forEach(chip => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'support-chip text-xs bg-white hover:bg-[#faefe3] text-[#9c5120] font-medium px-2.5 py-1 rounded-full border border-[#ebdccb] transition shadow-xs hover:border-[#9c5120]';
+                btn.textContent = chip;
+                btn.setAttribute('data-query', chip.replace(/^[^\w\s]+/, '').trim());
+                chipsWrapper.appendChild(btn);
+            });
+            messagesContainer.appendChild(chipsWrapper);
+        }
+
+        scrollToBottom();
+    }
+
+    // Send Message API
+    async function sendMessage(messageText) {
+        if (!messageText || isWaitingResponse) return;
+        isWaitingResponse = true;
+
+        appendMessage('USER', messageText);
+        chatInput.value = '';
+        typingIndicator.classList.remove('hidden');
+        scrollToBottom();
+
+        try {
+            const response = await fetch('/api/support/chat/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({
+                    message: messageText,
+                    conversation_id: currentConversationId
+                })
+            });
+
+            const data = await response.json();
+            typingIndicator.classList.add('hidden');
+
+            if (data.status === 'success') {
+                currentConversationId = data.conversation_id;
+                appendMessage('AI', data.reply, data.chips, data.timestamp);
+            } else {
+                appendMessage('AI', '⚠️ I ran into a slight issue connecting to support. Please try again or check our [Help Hub](/support/).');
+            }
+        } catch (err) {
+            console.error(err);
+            typingIndicator.classList.add('hidden');
+            appendMessage('AI', '⚠️ Network connection hiccup. Please verify your internet or try refreshing.');
+        } finally {
+            isWaitingResponse = false;
+        }
+    }
+
+    // Load Previous History
+    async function loadHistory() {
+        try {
+            const res = await fetch('/api/support/history/');
+            const data = await res.json();
+            if (data.status === 'success' && data.messages && data.messages.length > 0) {
+                currentConversationId = data.conversation_id;
+                // Remove initial chips if there is already an active conversation
+                const initialChips = document.getElementById('supportInitialChips');
+                if (initialChips) initialChips.remove();
+
+                data.messages.forEach(msg => {
+                    appendMessage(msg.sender, msg.message, [], msg.created_at);
+                });
+            }
+        } catch (e) {
+            console.error("Could not load support history", e);
+        }
+    }
+
+    // Event Listeners
+    chatForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const text = chatInput.value.trim();
+        if (text) sendMessage(text);
+    });
+
+    // Delegate clicks on suggestion chips
+    messagesContainer.addEventListener('click', (e) => {
+        const chip = e.target.closest('.support-chip');
+        if (chip) {
+            const query = chip.getAttribute('data-query') || chip.textContent.trim();
+            sendMessage(query);
+        }
+    });
+
+    // Reset Chat
+    resetBtn.addEventListener('click', async () => {
+        if (confirm("Reset and start a fresh support session?")) {
+            try {
+                await fetch('/api/support/clear/', {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': getCsrfToken() }
+                });
+                messagesContainer.innerHTML = '';
+                currentConversationId = null;
+                appendMessage('AI', "👋 Hello again! A fresh chat session has been started. How can I help you?");
+            } catch (err) {
+                console.error(err);
+            }
+        }
+    });
+
+    // Escalate Quick Button
+    if (escalateQuickBtn) {
+        escalateQuickBtn.addEventListener('click', () => {
+            sendMessage("I would like to speak with a human administrator please.");
+        });
+    }
+
+    // Expose open helper globally
+    window.CivicProChat = {
+        open: () => toggleChat(true),
+        close: () => toggleChat(false),
+        ask: (prompt) => {
+            toggleChat(true);
+            sendMessage(prompt);
+        }
+    };
+})();
+</script>
