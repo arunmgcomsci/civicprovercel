@@ -11,6 +11,12 @@ db.sqlite3-journal
 ivatio/media/
 media/
 
+# Static collections
+staticfiles/
+staticfiles_build/
+ivatio/staticfiles/
+ivatio/staticfiles_build/
+
 # Environments
 .env
 .venv
